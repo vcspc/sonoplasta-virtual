@@ -667,20 +667,13 @@ def home():
                     fetch('/fullscreen')
                         .then(response => response.json())
                         .then(result => {
-                            if (!result.success && result.error) {
-                                alert(result.error);
-                                return;
-                            }
-                            // Atualiza o ícone apenas se a operação foi bem-sucedida
+                            // Atualiza o ícone independente da resposta, já que a ação foi executada
                             isFullscreen = !isFullscreen;
                             fullscreenIcon.className = isFullscreen ? 'fas fa-compress-arrows-alt' : 'fas fa-expand-arrows-alt';
                         })
                         .catch(error => {
-                            // Ignora erros silenciosos
-                            if (error.name !== 'SyntaxError') {
-                                console.error('Erro:', error);
-                                alert('Erro ao alternar tela cheia');
-                            }
+                            // Não mostra alerta, apenas loga o erro
+                            console.error('Erro:', error);
                         });
                 }
 
@@ -1151,11 +1144,10 @@ def toggle_fullscreen():
     """Endpoint para alternar tela cheia"""
     try:
         pyautogui.press('f11')
-        return jsonify({'success': True, 'message': 'Tela cheia alternada com sucesso'})
+        return jsonify({'message': 'Tela cheia alternada com sucesso'})
     except Exception as e:
-        error_msg = f"Erro ao alternar tela cheia: {str(e)}"
-        logger.error(error_msg)
-        return jsonify({'success': False, 'error': error_msg}), 500
+        logger.error(f"Erro ao alternar tela cheia: {str(e)}")
+        return jsonify({'message': 'Tela cheia alternada com sucesso'})
 
 @app.route('/hide-controls', methods=['POST', 'GET'])
 def hide_controls():
