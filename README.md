@@ -1,66 +1,43 @@
 # Sonoplasta Virtual
 
-Um aplicativo web para controle de reprodução de vídeos e apresentações, ideal para sonoplastia e apresentações em eventos.
+Um aplicativo web profissional para controle de reprodução de vídeos e apresentações, ideal para sonoplastia, eventos ao vivo, igrejas, teatros e apresentações em geral.
 
-## 🚀 Instalação
+## 🎯 Funcionalidades Principais
 
-### Pré-requisitos
-- Python 3.7 ou superior
-- Navegador web moderno (Chrome, Firefox, Edge, etc.)
+### 🎵 Controle de Mídia
+- Reprodução de vídeos, áudios e apresentações
+- Controle de volume (aumentar/diminuir)
+- Função mudo/desmudo
+- Play/Pause
+- Integração com YouTube para busca e reprodução de vídeos
 
-### Instalação Rápida
-1. Baixe ou clone este repositório
-2. Coloque seus arquivos (vídeos e apresentações) na pasta `files`
-3. Dê duplo clique no arquivo `run.bat`
+### 🎞️ Gerenciamento de Apresentações
+- Navegação entre slides (anterior/próximo)
+- Modo apresentação (F5)
+- Suporte a múltiplos formatos
 
-### Instalação Manual
-1. Ative o ambiente virtual:
-```bash
-.venv\Scripts\activate.bat
-```
+### 🎨 Interface
+- Design responsivo e moderno
+- Modo escuro/claro
+- Tela cheia
+- Controles ocultáveis
+- Menu lateral com acesso rápido
+- Busca integrada de arquivos
 
-2. Instale as dependências:
-```bash
-pip install -r requirements.txt
-```
-
-3. Inicie o servidor:
-```bash
-python app.py
-```
-
-## 📱 Uso
-
-### Acesso Local
-- Abra https://localhost:5000 no navegador
-
-### Acesso Remoto
-- Abra https://[IP-DO-COMPUTADOR]:5000 em qualquer dispositivo na mesma rede
-- Exemplo: https://192.168.1.100:5000
-
-### Controles
-- 🔍 **Busca**: Digite o nome do arquivo na caixa de pesquisa
-- ⏯️ **Play/Pause**: Botão central ou tecla Espaço
-- 🔊 **Volume**: Botões de volume ou teclas ↑/↓
-- 🔇 **Mudo**: Botão de mudo ou tecla M
-- 📺 **Tela Cheia**: Botão de expandir ou tecla F11
-- 👁️ **Ocultar Controles**: Botão de olho ou tecla H
-- ⬅️ **Slide Anterior**: Botão esquerdo ou tecla ←
-- ➡️ **Próximo Slide**: Botão direito ou tecla →
-- 🖥️ **Modo Apresentação**: Botão desktop ou tecla F5
-
-### Atalhos de Teclado
-- `Espaço`: Play/Pause
-- `↑`: Aumentar volume
-- `↓`: Diminuir volume
-- `←`: Slide anterior
-- `→`: Próximo slide
-- `M`: Mudo/Desmudo
-- `F5`: Modo apresentação
-- `F11`: Tela cheia
-- `H`: Ocultar controles do player
+### 🖥️ Controles do Sistema
+- Minimizar janela (Win+D)
+- Maximizar janela (Win+↑)
+- Alternar entre aplicativos (Alt+Tab)
+- Fechar aplicativo atual (Alt+F4)
 
 ## 📁 Formatos Suportados
+
+### Áudio
+- MP3 (.mp3)
+- WAV (.wav)
+- OGG (.ogg)
+- M4A (.m4a)
+- WMA (.wma)
 
 ### Vídeos
 - MP4 (.mp4)
@@ -74,37 +51,68 @@ python app.py
 - Keynote (.key)
 - PDF (.pdf)
 
-## 💡 Dicas
-1. Coloque seus arquivos na pasta `files` antes de iniciar
-2. Use nomes descritivos para facilitar a busca
-3. Aceite o certificado de segurança ao acessar via HTTPS
-4. Para melhor experiência, use em tela cheia
+## 🚀 Instalação
+
+### Pré-requisitos
+- Python 3.7 ou superior
+- Navegador web moderno (Chrome, Firefox, Edge, etc.)
+- Chave de API do YouTube (para funcionalidades do YouTube)
+
+### Instalação
+1. Clone este repositório
+2. Crie um arquivo `.env` e adicione sua chave API do YouTube:
+```
+YOUTUBE_API_KEY=sua_chave_aqui
+```
+3. Instale as dependências:
+```bash
+pip install -r requirements.txt
+```
+4. Inicie o servidor:
+```bash
+python app.py
+```
+
+## 📱 Uso
+
+### Atalhos de Teclado
+- `Espaço`: Play/Pause
+- `↑`: Aumentar volume
+- `↓`: Diminuir volume
+- `M`: Mudo/Desmudo
+- `F11`: Tela cheia
+- `H`: Ocultar controles
+- `←/→`: Navegar entre slides
+- `F5`: Modo apresentação
+- `Alt+F4`: Fechar aplicativo
+- `Win+D`: Mostrar área de trabalho
+- `Win+↑`: Maximizar janela
+- `Alt+Tab`: Alternar aplicativos
+
+### Organização
+- Coloque seus arquivos na pasta `files`
+- Use a busca integrada para encontrar arquivos
+- Arquivos são categorizados automaticamente por tipo
 
 ## ⚠️ Solução de Problemas
 
-### Certificado de Segurança
-Se aparecer aviso de certificado:
-1. Clique em "Avançado"
-2. Clique em "Prosseguir para o site"
+### Certificado SSL
+O sistema usa HTTPS com certificado auto-assinado. Na primeira execução:
+1. O certificado será gerado automaticamente
+2. Aceite o certificado no navegador quando solicitado
 
 ### Arquivos não Aparecem
 - Verifique se os arquivos estão na pasta `files`
 - Verifique se o formato é suportado
-- Tente reiniciar o servidor
+- Certifique-se que o nome do arquivo contém o termo buscado
 
-### Controles não Funcionam
-- Verifique se o arquivo está em foco
-- Tente clicar na tela primeiro
-- Use os atalhos de teclado como alternativa
+### YouTube
+- Verifique se a chave API está configurada no arquivo `.env`
+- Certifique-se de ter conexão com internet
+- A busca retorna os 10 primeiros resultados
 
 ## 🔧 Requisitos do Sistema
-- Windows 7/8/10/11
-- 4GB RAM (mínimo)
-- Espaço em disco suficiente para seus arquivos
-- Conexão de rede (para acesso remoto)
-
-## 📝 Notas
-- O aplicativo usa HTTPS para segurança
-- Os controles funcionam melhor em tela cheia
-- Mantenha o Python e as dependências atualizados
-- O ambiente virtual (.venv) mantém as dependências isoladas
+- Sistema operacional: Windows/Linux
+- Navegador web moderno
+- Python 3.7+
+- Conexão com internet (para funcionalidades do YouTube)
