@@ -63,10 +63,11 @@ def create_self_signed_cert():
         ))
 
 def find_file(search_term):
-    """Procura por um arquivo (vídeo ou apresentação) com base no termo de pesquisa"""
+    """Procura por um arquivo (vídeo, apresentação ou áudio) com base no termo de pesquisa"""
     logger.info(f"Procurando arquivo com termo: {search_term}")
     video_extensions = ('.mp4', '.avi', '.mkv', '.mov')
     presentation_extensions = ('.ppt', '.pptx', '.odp', '.key', '.pdf')
+    audio_extensions = ('.mp3', '.wav', '.ogg', '.m4a', '.wma')
     files_folder = Path('files')
     
     if not files_folder.exists():
@@ -86,6 +87,9 @@ def find_file(search_term):
             elif file.suffix.lower() in presentation_extensions:
                 logger.info(f"Apresentação encontrada: {file}")
                 return str(file.absolute()), 'presentation'
+            elif file.suffix.lower() in audio_extensions:
+                logger.info(f"Áudio encontrado: {file}")
+                return str(file.absolute()), 'audio'
     
     logger.warning(f"Nenhum arquivo encontrado com o termo: {search_term}")
     return None, None
@@ -480,6 +484,32 @@ def home():
                         color: #1a1a1a;
                     }
                 }
+
+                .system-controls {
+                    display: flex;
+                    gap: 15px;
+                    justify-content: center;
+                    width: 100%;
+                }
+
+                .system-controls .control-button {
+                    color: #666;
+                }
+
+                .system-controls .control-button:hover {
+                    background-color: #f0f0f0;
+                }
+
+                /* Suporte para Dark Mode */
+                @media (prefers-color-scheme: dark) {
+                    .system-controls .control-button {
+                        color: #adb5bd;
+                    }
+                    
+                    .system-controls .control-button:hover {
+                        background-color: #4d4d4d;
+                    }
+                }
             </style>
         </head>
         <body>
@@ -510,7 +540,7 @@ def home():
                                 <i class="fas fa-volume-down"></i>
                             </button>
                             <button class="control-button" onclick="toggleMute()" title="Mudo/Desmudo" id="muteButton">
-                                <i class="fas fa-volume-up" id="muteIcon"></i>
+                                <i class="fas fa-volume-mute" id="muteIcon"></i>
                             </button>
                             <button class="control-button" onclick="adjustVolume('up')" title="Aumentar Volume">
                                 <i class="fas fa-volume-up"></i>
@@ -525,13 +555,10 @@ def home():
                         
                         <div class="screen-controls">
                             <button class="control-button" onclick="toggleFullscreen()" title="Tela Cheia (F11)">
-                                <i class="fas fa-expand" id="fullscreenIcon"></i>
+                                <i class="fas fa-expand-arrows-alt"></i>
                             </button>
                             <button class="control-button" onclick="hideControls()" title="Ocultar Controles (H)">
                                 <i class="fas fa-eye-slash"></i>
-                            </button>
-                            <button class="control-button danger" onclick="closeApp()" title="Fechar Aplicativo (Alt+F4)">
-                                <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -540,13 +567,31 @@ def home():
                     <div class="controls-group">
                         <div class="presentation-controls">
                             <button class="control-button" onclick="previousSlide()" title="Slide Anterior (←)">
-                                <i class="fas fa-chevron-left"></i>
+                                <i class="fas fa-step-backward"></i>
                             </button>
                             <button class="control-button" onclick="togglePresentationMode()" title="Modo Apresentação (F5)">
-                                <i class="fas fa-desktop"></i>
+                                <i class="fas fa-tv"></i>
                             </button>
                             <button class="control-button" onclick="nextSlide()" title="Próximo Slide (→)">
-                                <i class="fas fa-chevron-right"></i>
+                                <i class="fas fa-step-forward"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <h2 class="section-title">Sistema</h2>
+                    <div class="controls-group">
+                        <div class="system-controls">
+                            <button class="control-button" onclick="minimizeWindow()" title="Mostrar Área de Trabalho (Win+D)">
+                                <i class="fas fa-desktop"></i>
+                            </button>
+                            <button class="control-button" onclick="maximizeWindow()" title="Maximizar Janela (Win+↑)">
+                                <i class="fas fa-square"></i>
+                            </button>
+                            <button class="control-button" onclick="switchApp()" title="Alternar Aplicativos (Alt+Tab)">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="control-button danger" onclick="closeApp()" title="Fechar Aplicativo (Alt+F4)">
+                                <i class="fas fa-power-off"></i>
                             </button>
                         </div>
                     </div>
@@ -622,16 +667,20 @@ def home():
                     fetch('/fullscreen')
                         .then(response => response.json())
                         .then(result => {
-                            if (result.error) {
+                            if (!result.success && result.error) {
                                 alert(result.error);
-                            } else {
-                                isFullscreen = !isFullscreen;
-                                fullscreenIcon.className = isFullscreen ? 'fas fa-compress' : 'fas fa-expand';
+                                return;
                             }
+                            // Atualiza o ícone apenas se a operação foi bem-sucedida
+                            isFullscreen = !isFullscreen;
+                            fullscreenIcon.className = isFullscreen ? 'fas fa-compress-arrows-alt' : 'fas fa-expand-arrows-alt';
                         })
                         .catch(error => {
-                            console.error('Erro:', error);
-                            alert('Erro ao alternar tela cheia');
+                            // Ignora erros silenciosos
+                            if (error.name !== 'SyntaxError') {
+                                console.error('Erro:', error);
+                                alert('Erro ao alternar tela cheia');
+                            }
                         });
                 }
 
@@ -707,6 +756,48 @@ def home():
                     }
                 }
 
+                function minimizeWindow() {
+                    fetch('/system/minimize')
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.error) {
+                                alert(result.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro:', error);
+                            alert('Erro ao minimizar janela');
+                        });
+                }
+
+                function maximizeWindow() {
+                    fetch('/system/maximize')
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.error) {
+                                alert(result.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro:', error);
+                            alert('Erro ao maximizar janela');
+                        });
+                }
+
+                function switchApp() {
+                    fetch('/system/switch-app')
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.error) {
+                                alert(result.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro:', error);
+                            alert('Erro ao alternar entre aplicativos');
+                        });
+                }
+
                 searchInput.addEventListener('input', function() {
                     clearTimeout(timeoutId);
                     const searchTerm = this.value.trim();
@@ -725,8 +816,12 @@ def home():
                                 if (data.videos && data.videos.length > 0) {
                                     data.videos.forEach(file => {
                                         const li = document.createElement('li');
-                                        const icon = file.type === 'video' ? 'fas fa-film' : 'fas fa-file-powerpoint';
-                                        const type = file.type === 'video' ? 'Vídeo' : 'Apresentação';
+                                        const icon = file.type === 'video' ? 'fas fa-film' : 
+                                                    file.type === 'audio' ? 'fas fa-music' : 
+                                                    'fas fa-file-powerpoint';
+                                        const type = file.type === 'video' ? 'Vídeo' : 
+                                                    file.type === 'audio' ? 'Áudio' : 
+                                                    'Apresentação';
                                         li.innerHTML = `
                                             <i class="${icon} file-icon"></i>
                                             ${file.name}
@@ -820,6 +915,18 @@ def home():
                             e.preventDefault();
                             closeApp();
                             break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            maximizeWindow();
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            minimizeWindow();
+                            break;
+                        case 'AltTab':
+                            e.preventDefault();
+                            switchApp();
+                            break;
                     }
                 });
             </script>
@@ -842,15 +949,24 @@ def api_search():
     
     video_extensions = ('.mp4', '.avi', '.mkv', '.mov')
     presentation_extensions = ('.ppt', '.pptx', '.odp', '.key', '.pdf')
+    audio_extensions = ('.mp3', '.wav', '.ogg', '.m4a', '.wma')
     files = []
     
     for file in files_folder.glob('**/*'):
         if search_term in file.name.lower():
-            if file.suffix.lower() in video_extensions or file.suffix.lower() in presentation_extensions:
+            file_type = None
+            if file.suffix.lower() in video_extensions:
+                file_type = 'video'
+            elif file.suffix.lower() in presentation_extensions:
+                file_type = 'presentation'
+            elif file.suffix.lower() in audio_extensions:
+                file_type = 'audio'
+                
+            if file_type:
                 files.append({
                     'name': file.name,
                     'path': str(file.absolute()),
-                    'type': 'video' if file.suffix.lower() in video_extensions else 'presentation'
+                    'type': file_type
                 })
     
     logger.info(f"Arquivos encontrados: {files}")
@@ -902,6 +1018,13 @@ def search_get(term):
                         video_process = subprocess.Popen([opener, file_path])
                         time.sleep(1.5)
                         pyautogui.hotkey('alt', 'enter')
+            elif file_type == 'audio':
+                # Abre áudio com o player padrão
+                if os.name == 'nt':
+                    video_process = subprocess.Popen(['start', '', file_path], shell=True)
+                else:
+                    opener = 'xdg-open' if os.name == 'posix' else 'open'
+                    video_process = subprocess.Popen([opener, file_path])
             else:
                 # Abre apresentação e coloca em modo apresentação após 3 segundos
                 if os.name == 'nt':
@@ -1028,11 +1151,11 @@ def toggle_fullscreen():
     """Endpoint para alternar tela cheia"""
     try:
         pyautogui.press('f11')
-        return jsonify({'message': 'Tela cheia alternada com sucesso'})
+        return jsonify({'success': True, 'message': 'Tela cheia alternada com sucesso'})
     except Exception as e:
         error_msg = f"Erro ao alternar tela cheia: {str(e)}"
         logger.error(error_msg)
-        return jsonify({'error': error_msg}), 500
+        return jsonify({'success': False, 'error': error_msg}), 500
 
 @app.route('/hide-controls', methods=['POST', 'GET'])
 def hide_controls():
@@ -1056,6 +1179,48 @@ def close_app():
         return jsonify({'message': 'Comando enviado com sucesso'})
     except Exception as e:
         error_msg = f"Erro ao fechar aplicativo: {str(e)}"
+        logger.error(error_msg)
+        return jsonify({'error': error_msg}), 500
+
+@app.route('/system/minimize', methods=['POST', 'GET'])
+def minimize_window():
+    """Endpoint para minimizar todas as janelas e mostrar a área de trabalho"""
+    try:
+        if os.name == 'nt':
+            pyautogui.hotkey('win', 'd')  # Windows + D mostra a área de trabalho
+        else:
+            pyautogui.hotkey('win', 'd')  # Também funciona em muitas distribuições Linux
+        return jsonify({'message': 'Área de trabalho mostrada com sucesso'})
+    except Exception as e:
+        error_msg = f"Erro ao mostrar área de trabalho: {str(e)}"
+        logger.error(error_msg)
+        return jsonify({'error': error_msg}), 500
+
+@app.route('/system/maximize', methods=['POST', 'GET'])
+def maximize_window():
+    """Endpoint para maximizar a janela atual"""
+    try:
+        if os.name == 'nt':
+            pyautogui.hotkey('win', 'up')  # Windows + Up maximiza no Windows
+        else:
+            pyautogui.hotkey('win', 'up')  # Pode variar dependendo do sistema
+        return jsonify({'message': 'Janela maximizada com sucesso'})
+    except Exception as e:
+        error_msg = f"Erro ao maximizar janela: {str(e)}"
+        logger.error(error_msg)
+        return jsonify({'error': error_msg}), 500
+
+@app.route('/system/switch-app', methods=['POST', 'GET'])
+def switch_app():
+    """Endpoint para alternar entre aplicativos (Alt+Tab)"""
+    try:
+        if os.name == 'nt':
+            pyautogui.hotkey('alt', 'tab')
+        else:
+            pyautogui.hotkey('alt', 'tab')
+        return jsonify({'message': 'Alternado entre aplicativos com sucesso'})
+    except Exception as e:
+        error_msg = f"Erro ao alternar entre aplicativos: {str(e)}"
         logger.error(error_msg)
         return jsonify({'error': error_msg}), 500
 
