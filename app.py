@@ -194,88 +194,154 @@ def home():
                 }
 
                 .controls {
-                    max-width: 300px;
+                    max-width: 1200px;
                     margin: 20px auto;
-                    background-color: #f8f9fa;
+                    padding: 20px;
+                    background: linear-gradient(145deg, #2c3e50, #3498db);
                     border-radius: 20px;
-                    padding: 25px;
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
                 }
 
                 .section-title {
-                    font-size: 1em;
-                    color: #666;
+                    color: #ecf0f1;
+                    font-size: 1.4em;
                     text-align: center;
-                    margin: 15px 0 10px 0;
+                    margin: 25px 0 20px;
                     text-transform: uppercase;
-                    letter-spacing: 1px;
+                    letter-spacing: 2px;
+                    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
                 }
 
                 .controls-group {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 20px;
-                    margin-bottom: 25px;
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 15px;
+                    padding: 10px;
+                    margin-bottom: 30px;
                 }
 
                 .volume-controls,
                 .playback-controls,
                 .presentation-controls,
-                .screen-controls {
-                    display: flex;
+                .screen-controls,
+                .system-controls {
+                    grid-column: span 3;
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
                     gap: 15px;
-                    justify-content: center;
-                    width: 100%;
                 }
 
                 .control-button {
-                    width: 60px;
-                    height: 60px;
-                    border-radius: 50%;
-                    background-color: white;
+                    aspect-ratio: 1;
+                    width: 100%;
+                    border-radius: 15px;
                     border: none;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    transition: all 0.2s;
+                    background: rgba(255, 255, 255, 0.1);
+                    backdrop-filter: blur(5px);
+                    transition: all 0.3s ease;
+                    font-size: calc(20px + 1vw);
+                    color: #ecf0f1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    position: relative;
+                    overflow: hidden;
                 }
 
                 .control-button:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                    transform: translateY(-5px);
+                    background: rgba(255, 255, 255, 0.2);
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
                 }
 
-                .control-button:active {
-                    transform: translateY(0);
-                    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+                .volume-controls .control-button {
+                    background: linear-gradient(145deg, #e74c3c, #c0392b);
                 }
 
-                /* Suporte para Dark Mode */
-                @media (prefers-color-scheme: dark) {
+                .playback-controls .control-button {
+                    background: linear-gradient(145deg, #2ecc71, #27ae60);
+                }
+
+                .presentation-controls .control-button {
+                    background: linear-gradient(145deg, #9b59b6, #8e44ad);
+                }
+
+                .screen-controls .control-button {
+                    background: linear-gradient(145deg, #f1c40f, #f39c12);
+                }
+
+                .system-controls .control-button {
+                    background: linear-gradient(145deg, #1abc9c, #16a085);
+                }
+
+                .control-button.danger {
+                    background: linear-gradient(145deg, #e74c3c, #c0392b);
+                }
+
+                @media (max-width: 768px) {
                     .controls {
-                        background-color: #2d2d2d;
-                        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                        padding: 15px;
+                        margin: 10px;
                     }
 
-                    .control-button {
-                        background-color: #3d3d3d;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                    .controls-group {
+                        gap: 10px;
                     }
 
                     .section-title {
-                        color: #adb5bd;
+                        font-size: 1.2em;
+                        margin: 20px 0 15px;
                     }
                 }
 
-                /* Estilos para Mobile */
-                @media (max-width: 350px) {
-                    .controls {
-                        padding: 15px;
+                @media (max-width: 480px) {
+                    .control-button {
+                        font-size: calc(16px + 1vw);
                     }
 
-                    .control-button {
-                        width: 50px;
-                        height: 50px;
+                    .controls {
+                        padding: 10px;
+                        margin: 5px;
                     }
+
+                    .section-title {
+                        font-size: 1.1em;
+                        margin: 15px 0 10px;
+                    }
+                }
+
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                    100% { transform: scale(1); }
+                }
+
+                .control-button:active {
+                    animation: pulse 0.3s ease-in-out;
+                }
+
+                .control-button::after {
+                    content: attr(title);
+                    position: absolute;
+                    bottom: -40px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(0, 0, 0, 0.8);
+                    color: white;
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                    font-size: 12px;
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: all 0.3s ease;
+                    white-space: nowrap;
+                }
+
+                .control-button:hover::after {
+                    opacity: 1;
+                    visibility: visible;
+                    bottom: -30px;
                 }
 
                 .now-playing {
@@ -508,6 +574,52 @@ def home():
                     
                     .system-controls .control-button:hover {
                         background-color: #4d4d4d;
+                    }
+                }
+
+                /* Estilos específicos para dispositivos móveis */
+                @media (max-width: 480px) {
+                    .control-button {
+                        width: 80px;
+                        height: 80px;
+                        font-size: 28px;
+                    }
+
+                    .controls-group {
+                        gap: 30px;
+                    }
+
+                    .section-title {
+                        font-size: 1.3em;
+                        margin: 20px 0 15px 0;
+                    }
+
+                    /* Aumenta área de toque */
+                    .volume-controls,
+                    .playback-controls,
+                    .presentation-controls,
+                    .screen-controls,
+                    .system-controls {
+                        gap: 25px;
+                        padding: 10px;
+                    }
+                }
+
+                /* Ajustes para telas muito pequenas */
+                @media (max-width: 360px) {
+                    .control-button {
+                        width: 70px;
+                        height: 70px;
+                        font-size: 24px;
+                    }
+                }
+
+                /* Ajustes para tablets */
+                @media (min-width: 768px) and (max-width: 1024px) {
+                    .control-button {
+                        width: 75px;
+                        height: 75px;
+                        font-size: 26px;
                     }
                 }
             </style>
