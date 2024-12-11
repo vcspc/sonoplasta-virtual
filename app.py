@@ -190,55 +190,88 @@ def home():
                 }
 
                 .controls {
+                    max-width: 300px;
+                    margin: 20px auto;
                     background-color: #f8f9fa;
-                    border-radius: 8px;
-                    padding: 20px;
-                    margin-top: 20px;
+                    border-radius: 20px;
+                    padding: 25px;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                }
+
+                .section-title {
+                    font-size: 1em;
+                    color: #666;
+                    text-align: center;
+                    margin: 15px 0 10px 0;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
                 }
 
                 .controls-group {
                     display: flex;
-                    flex-wrap: wrap;
-                    justify-content: center;
-                    gap: 15px;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 20px;
+                    margin-bottom: 25px;
                 }
 
-                .volume-controls {
+                .volume-controls,
+                .playback-controls,
+                .presentation-controls,
+                .screen-controls {
                     display: flex;
-                    gap: 10px;
-                    flex-wrap: wrap;
+                    gap: 15px;
                     justify-content: center;
+                    width: 100%;
                 }
 
                 .control-button {
-                    background: none;
-                    border: 2px solid #ddd;
-                    font-size: 20px;
-                    cursor: pointer;
-                    padding: 12px;
+                    width: 60px;
+                    height: 60px;
                     border-radius: 50%;
-                    width: 50px;
-                    height: 50px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    transition: all 0.2s;
                     background-color: white;
+                    border: none;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    transition: all 0.2s;
                 }
 
                 .control-button:hover {
-                    background-color: #e9ecef;
-                    transform: scale(1.1);
-                    border-color: #0056b3;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
                 }
 
                 .control-button:active {
-                    background-color: #dee2e6;
-                    transform: scale(0.95);
+                    transform: translateY(0);
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
                 }
 
-                .control-button i {
-                    color: #495057;
+                /* Suporte para Dark Mode */
+                @media (prefers-color-scheme: dark) {
+                    .controls {
+                        background-color: #2d2d2d;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                    }
+
+                    .control-button {
+                        background-color: #3d3d3d;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                    }
+
+                    .section-title {
+                        color: #adb5bd;
+                    }
+                }
+
+                /* Estilos para Mobile */
+                @media (max-width: 350px) {
+                    .controls {
+                        padding: 15px;
+                    }
+
+                    .control-button {
+                        width: 50px;
+                        height: 50px;
+                    }
                 }
 
                 .now-playing {
@@ -383,6 +416,70 @@ def home():
                     border-radius: 4px;
                     background-color: #e9ecef;
                 }
+
+                .section-title {
+                    font-size: 1.2em;
+                    color: #666;
+                    margin: 15px 0 10px 0;
+                    padding-bottom: 5px;
+                    border-bottom: 1px solid #ddd;
+                }
+
+                .controls {
+                    background-color: #f8f9fa;
+                    border-radius: 8px;
+                    padding: 20px;
+                    margin-top: 20px;
+                }
+
+                .controls-group {
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    gap: 15px;
+                    margin-bottom: 20px;
+                }
+
+                .controls-group:last-child {
+                    margin-bottom: 0;
+                }
+
+                /* Suporte para Dark Mode */
+                @media (prefers-color-scheme: dark) {
+                    .section-title {
+                        color: #adb5bd;
+                        border-bottom-color: #4d4d4d;
+                    }
+                }
+
+                /* Estilos para Mobile */
+                @media (max-width: 600px) {
+                    .section-title {
+                        font-size: 1.1em;
+                        margin: 12px 0 8px 0;
+                    }
+                }
+
+                .control-button.danger {
+                    color: #dc3545;
+                }
+
+                .control-button.danger:hover {
+                    background-color: #dc3545;
+                    color: white;
+                }
+
+                /* Suporte para Dark Mode */
+                @media (prefers-color-scheme: dark) {
+                    .control-button.danger {
+                        color: #ff6b6b;
+                    }
+                    
+                    .control-button.danger:hover {
+                        background-color: #ff6b6b;
+                        color: #1a1a1a;
+                    }
+                }
             </style>
         </head>
         <body>
@@ -406,6 +503,7 @@ def home():
                 </div>
 
                 <div class="controls">
+                    <h2 class="section-title">Mídia</h2>
                     <div class="controls-group">
                         <div class="volume-controls">
                             <button class="control-button" onclick="adjustVolume('down')" title="Diminuir Volume">
@@ -418,26 +516,37 @@ def home():
                                 <i class="fas fa-volume-up"></i>
                             </button>
                         </div>
-                        <div class="presentation-controls">
-                            <button class="control-button" onclick="previousSlide()" title="Slide Anterior (←)">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
+                        
+                        <div class="playback-controls">
                             <button class="control-button" onclick="togglePlayPause()" title="Play/Pause">
                                 <i class="fas fa-play" id="playPauseIcon"></i>
                             </button>
-                            <button class="control-button" onclick="nextSlide()" title="Próximo Slide (→)">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
                         </div>
+                        
                         <div class="screen-controls">
                             <button class="control-button" onclick="toggleFullscreen()" title="Tela Cheia (F11)">
                                 <i class="fas fa-expand" id="fullscreenIcon"></i>
                             </button>
+                            <button class="control-button" onclick="hideControls()" title="Ocultar Controles (H)">
+                                <i class="fas fa-eye-slash"></i>
+                            </button>
+                            <button class="control-button danger" onclick="closeApp()" title="Fechar Aplicativo (Alt+F4)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <h2 class="section-title">Apresentação</h2>
+                    <div class="controls-group">
+                        <div class="presentation-controls">
+                            <button class="control-button" onclick="previousSlide()" title="Slide Anterior (←)">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
                             <button class="control-button" onclick="togglePresentationMode()" title="Modo Apresentação (F5)">
                                 <i class="fas fa-desktop"></i>
                             </button>
-                            <button class="control-button" onclick="hideControls()" title="Ocultar Controles do Player (H)">
-                                <i class="fas fa-eye-slash"></i>
+                            <button class="control-button" onclick="nextSlide()" title="Próximo Slide (→)">
+                                <i class="fas fa-chevron-right"></i>
                             </button>
                         </div>
                     </div>
@@ -582,6 +691,22 @@ def home():
                         });
                 }
 
+                function closeApp() {
+                    if (confirm('Tem certeza que deseja fechar o aplicativo atual?')) {
+                        fetch('/close-app')
+                            .then(response => response.json())
+                            .then(result => {
+                                if (result.error) {
+                                    alert(result.error);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Erro:', error);
+                                alert('Erro ao fechar aplicativo');
+                            });
+                    }
+                }
+
                 searchInput.addEventListener('input', function() {
                     clearTimeout(timeoutId);
                     const searchTerm = this.value.trim();
@@ -690,6 +815,10 @@ def home():
                         case 'F5':
                             e.preventDefault();
                             togglePresentationMode();
+                            break;
+                        case 'AltF4':
+                            e.preventDefault();
+                            closeApp();
                             break;
                     }
                 });
@@ -916,6 +1045,17 @@ def hide_controls():
         return jsonify({'message': 'Controles ocultados com sucesso'})
     except Exception as e:
         error_msg = f"Erro ao ocultar controles: {str(e)}"
+        logger.error(error_msg)
+        return jsonify({'error': error_msg}), 500
+
+@app.route('/close-app', methods=['POST', 'GET'])
+def close_app():
+    """Endpoint para fechar o aplicativo atual (Alt+F4)"""
+    try:
+        pyautogui.hotkey('alt', 'f4')
+        return jsonify({'message': 'Comando enviado com sucesso'})
+    except Exception as e:
+        error_msg = f"Erro ao fechar aplicativo: {str(e)}"
         logger.error(error_msg)
         return jsonify({'error': error_msg}), 500
 
