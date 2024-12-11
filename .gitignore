@@ -1,9 +1,14 @@
-# Pasta de vídeos
-videos/
+# Pasta de arquivos
+files/
 *.mp4
 *.avi
 *.mkv
 *.mov
+*.ppt
+*.pptx
+*.odp
+*.key
+*.pdf
 
 # Certificados SSL
 *.pem

@@ -62,26 +62,33 @@ def create_self_signed_cert():
             encryption_algorithm=serialization.NoEncryption()
         ))
 
-def find_video(search_term):
-    """Procura por um arquivo de vídeo com base no termo de pesquisa"""
-    logger.info(f"Procurando vídeo com termo: {search_term}")
+def find_file(search_term):
+    """Procura por um arquivo (vídeo ou apresentação) com base no termo de pesquisa"""
+    logger.info(f"Procurando arquivo com termo: {search_term}")
     video_extensions = ('.mp4', '.avi', '.mkv', '.mov')
-    videos_folder = Path('videos')
+    presentation_extensions = ('.ppt', '.pptx', '.odp', '.key', '.pdf')
+    files_folder = Path('files')
     
-    if not videos_folder.exists():
-        logger.warning("Pasta 'videos' não encontrada")
-        return None
+    if not files_folder.exists():
+        logger.warning("Pasta 'files' não encontrada")
+        os.makedirs('files', exist_ok=True)
+        logger.info("Pasta 'files' criada")
+        return None, None
     
-    all_files = list(videos_folder.glob('**/*'))
+    all_files = list(files_folder.glob('**/*'))
     logger.info(f"Arquivos encontrados na pasta: {[str(f) for f in all_files]}")
     
-    for file in videos_folder.glob('**/*'):
-        if file.suffix.lower() in video_extensions and search_term.lower() in file.name.lower():
-            logger.info(f"Vídeo encontrado: {file}")
-            return str(file.absolute())
+    for file in files_folder.glob('**/*'):
+        if search_term.lower() in file.name.lower():
+            if file.suffix.lower() in video_extensions:
+                logger.info(f"Vídeo encontrado: {file}")
+                return str(file.absolute()), 'video'
+            elif file.suffix.lower() in presentation_extensions:
+                logger.info(f"Apresentação encontrada: {file}")
+                return str(file.absolute()), 'presentation'
     
-    logger.warning(f"Nenhum vídeo encontrado com o termo: {search_term}")
-    return None
+    logger.warning(f"Nenhum arquivo encontrado com o termo: {search_term}")
+    return None, None
 
 @app.route('/')
 def home():
@@ -362,6 +369,20 @@ def home():
                         color: #fff;
                     }
                 }
+
+                .file-icon {
+                    margin-right: 10px;
+                    width: 20px;
+                    text-align: center;
+                }
+                .file-type {
+                    font-size: 12px;
+                    color: #6c757d;
+                    margin-left: 10px;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    background-color: #e9ecef;
+                }
             </style>
         </head>
         <body>
@@ -371,13 +392,13 @@ def home():
                 <div class="search-container">
                     <input type="text" 
                            id="searchInput" 
-                           placeholder="Digite para buscar vídeos..."
+                           placeholder="Digite para buscar arquivos..."
                            autocomplete="off">
                     <ul id="searchResults"></ul>
                 </div>
 
                 <div class="warning">
-                    <strong>Dica:</strong> Digite parte do nome do vídeo para buscar
+                    <strong>Dica:</strong> Digite parte do nome do arquivo para buscar
                 </div>
 
                 <div id="nowPlaying" class="now-playing" style="display: none;">
@@ -397,15 +418,28 @@ def home():
                                 <i class="fas fa-volume-up"></i>
                             </button>
                         </div>
-                        <button class="control-button" onclick="togglePlayPause()" title="Play/Pause">
-                            <i class="fas fa-play" id="playPauseIcon"></i>
-                        </button>
-                        <button class="control-button" onclick="toggleFullscreen()" title="Tela Cheia (F11)">
-                            <i class="fas fa-expand" id="fullscreenIcon"></i>
-                        </button>
-                        <button class="control-button" onclick="hideControls()" title="Ocultar Controles do Player (H)">
-                            <i class="fas fa-eye-slash"></i>
-                        </button>
+                        <div class="presentation-controls">
+                            <button class="control-button" onclick="previousSlide()" title="Slide Anterior (←)">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="control-button" onclick="togglePlayPause()" title="Play/Pause">
+                                <i class="fas fa-play" id="playPauseIcon"></i>
+                            </button>
+                            <button class="control-button" onclick="nextSlide()" title="Próximo Slide (→)">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="screen-controls">
+                            <button class="control-button" onclick="toggleFullscreen()" title="Tela Cheia (F11)">
+                                <i class="fas fa-expand" id="fullscreenIcon"></i>
+                            </button>
+                            <button class="control-button" onclick="togglePresentationMode()" title="Modo Apresentação (F5)">
+                                <i class="fas fa-desktop"></i>
+                            </button>
+                            <button class="control-button" onclick="hideControls()" title="Ocultar Controles do Player (H)">
+                                <i class="fas fa-eye-slash"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -506,6 +540,48 @@ def home():
                         });
                 }
 
+                function nextSlide() {
+                    fetch('/presentation/next')
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.error) {
+                                alert(result.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro:', error);
+                            alert('Erro ao avançar slide');
+                        });
+                }
+
+                function previousSlide() {
+                    fetch('/presentation/previous')
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.error) {
+                                alert(result.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro:', error);
+                            alert('Erro ao voltar slide');
+                        });
+                }
+
+                function togglePresentationMode() {
+                    fetch('/presentation/fullscreen')
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.error) {
+                                alert(result.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro:', error);
+                            alert('Erro ao alternar modo apresentação');
+                        });
+                }
+
                 searchInput.addEventListener('input', function() {
                     clearTimeout(timeoutId);
                     const searchTerm = this.value.trim();
@@ -522,25 +598,31 @@ def home():
                                 searchResults.innerHTML = '';
                                 
                                 if (data.videos && data.videos.length > 0) {
-                                    data.videos.forEach(video => {
+                                    data.videos.forEach(file => {
                                         const li = document.createElement('li');
-                                        li.textContent = video.name;
+                                        const icon = file.type === 'video' ? 'fas fa-film' : 'fas fa-file-powerpoint';
+                                        const type = file.type === 'video' ? 'Vídeo' : 'Apresentação';
+                                        li.innerHTML = `
+                                            <i class="${icon} file-icon"></i>
+                                            ${file.name}
+                                            <span class="file-type">${type}</span>
+                                        `;
                                         li.onclick = () => {
-                                            fetch(`/search/${encodeURIComponent(video.name)}`)
+                                            fetch(`/search/${encodeURIComponent(file.name)}`)
                                                 .then(response => response.json())
                                                 .then(result => {
                                                     if (result.error) {
                                                         alert(result.error);
                                                     } else {
                                                         nowPlaying.style.display = 'block';
-                                                        currentVideo.textContent = video.name;
+                                                        currentVideo.textContent = file.name;
                                                         isPlaying = true;
                                                         playPauseIcon.className = 'fas fa-pause';
                                                     }
                                                 })
                                                 .catch(error => {
                                                     console.error('Erro:', error);
-                                                    alert('Erro ao reproduzir o vídeo');
+                                                    alert('Erro ao abrir o arquivo');
                                                 });
                                         };
                                         searchResults.appendChild(li);
@@ -548,14 +630,14 @@ def home():
                                     searchResults.style.display = 'block';
                                 } else {
                                     const li = document.createElement('li');
-                                    li.textContent = 'Nenhum vídeo encontrado';
+                                    li.textContent = 'Nenhum arquivo encontrado';
                                     searchResults.appendChild(li);
                                     searchResults.style.display = 'block';
                                 }
                             })
                             .catch(error => {
                                 console.error('Erro:', error);
-                                searchResults.innerHTML = '<li>Erro ao buscar vídeos</li>';
+                                searchResults.innerHTML = '<li>Erro ao buscar arquivos</li>';
                                 searchResults.style.display = 'block';
                             });
                     }, 300);
@@ -568,37 +650,47 @@ def home():
                     }
                 });
 
-                // Atalhos de teclado
+                // Adiciona atalhos de teclado para apresentação
                 document.addEventListener('keydown', function(e) {
-                    // Espaço para play/pause
-                    if (e.code === 'Space' && document.activeElement !== searchInput) {
-                        e.preventDefault();
-                        togglePlayPause();
-                    }
-                    // Seta para cima para aumentar volume
-                    else if (e.code === 'ArrowUp' && document.activeElement !== searchInput) {
-                        e.preventDefault();
-                        adjustVolume('up');
-                    }
-                    // Seta para baixo para diminuir volume
-                    else if (e.code === 'ArrowDown' && document.activeElement !== searchInput) {
-                        e.preventDefault();
-                        adjustVolume('down');
-                    }
-                    // M para mudo/desmudo
-                    else if (e.code === 'KeyM' && document.activeElement !== searchInput) {
-                        e.preventDefault();
-                        toggleMute();
-                    }
-                    // F11 para tela cheia
-                    if (e.code === 'F11' && document.activeElement !== searchInput) {
-                        e.preventDefault();
-                        toggleFullscreen();
-                    }
-                    // H para ocultar controles
-                    if (e.code === 'KeyH' && document.activeElement !== searchInput) {
-                        e.preventDefault();
-                        hideControls();
+                    if (document.activeElement === searchInput) return;
+
+                    switch(e.code) {
+                        case 'Space':
+                            e.preventDefault();
+                            togglePlayPause();
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            adjustVolume('up');
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            adjustVolume('down');
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            nextSlide();
+                            break;
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            previousSlide();
+                            break;
+                        case 'KeyM':
+                            e.preventDefault();
+                            toggleMute();
+                            break;
+                        case 'KeyH':
+                            e.preventDefault();
+                            hideControls();
+                            break;
+                        case 'F11':
+                            e.preventDefault();
+                            toggleFullscreen();
+                            break;
+                        case 'F5':
+                            e.preventDefault();
+                            togglePresentationMode();
+                            break;
                     }
                 });
             </script>
@@ -608,25 +700,32 @@ def home():
 
 @app.route('/api/search')
 def api_search():
-    """Endpoint para buscar vídeos e retornar lista de resultados"""
+    """Endpoint para buscar arquivos e retornar lista de resultados"""
     search_term = request.args.get('term', '').lower()
-    logger.info(f"Buscando vídeos com termo: {search_term}")
+    logger.info(f"Buscando arquivos com termo: {search_term}")
     
-    videos_folder = Path('videos')
-    if not videos_folder.exists():
+    files_folder = Path('files')
+    if not files_folder.exists():
+        logger.warning("Pasta 'files' não encontrada")
+        os.makedirs('files', exist_ok=True)
+        logger.info("Pasta 'files' criada")
         return jsonify({'videos': []})
     
     video_extensions = ('.mp4', '.avi', '.mkv', '.mov')
-    videos = []
+    presentation_extensions = ('.ppt', '.pptx', '.odp', '.key', '.pdf')
+    files = []
     
-    for file in videos_folder.glob('**/*'):
-        if file.suffix.lower() in video_extensions and search_term in file.name.lower():
-            videos.append({
-                'name': file.name,
-                'path': str(file.absolute())
-            })
+    for file in files_folder.glob('**/*'):
+        if search_term in file.name.lower():
+            if file.suffix.lower() in video_extensions or file.suffix.lower() in presentation_extensions:
+                files.append({
+                    'name': file.name,
+                    'path': str(file.absolute()),
+                    'type': 'video' if file.suffix.lower() in video_extensions else 'presentation'
+                })
     
-    return jsonify({'videos': videos})
+    logger.info(f"Arquivos encontrados: {files}")
+    return jsonify({'videos': files})
 
 @app.before_request
 def before_request():
@@ -636,60 +735,68 @@ def before_request():
 
 @app.route('/search/<term>', methods=['GET'])
 def search_get(term):
-    """Endpoint GET para buscar vídeos diretamente pelo navegador"""
+    """Endpoint GET para buscar arquivos diretamente pelo navegador"""
     logger.info(f"Recebida requisição GET para buscar: {term}")
     global video_process
     
     try:
-        video_path = find_video(term)
+        file_path, file_type = find_file(term)
         
-        if not video_path:
-            error_msg = f"Vídeo não encontrado para o termo: {term}"
+        if not file_path:
+            error_msg = f"Arquivo não encontrado para o termo: {term}"
             logger.error(error_msg)
             return jsonify({
                 'error': error_msg,
-                'dica': 'Verifique se o vídeo está na pasta "videos" e se o nome está correto'
+                'dica': 'Verifique se o arquivo está na pasta "files" e se o nome está correto'
             }), 404
         
-        # Se já existe um vídeo em reprodução, fecha ele
+        # Se já existe um processo em execução, fecha ele
         if video_process is not None:
             try:
                 video_process.terminate()
-                logger.info("Processo de vídeo anterior terminado")
+                logger.info("Processo anterior terminado")
             except Exception as e:
                 logger.error(f"Erro ao terminar processo anterior: {e}")
         
         try:
-            # No Windows, usa o comando start /max para tela cheia
-            if os.name == 'nt':
-                # Primeiro, maximiza o player padrão
-                video_process = subprocess.Popen(['start', '/max', '', video_path], shell=True)
-                # Depois de um pequeno delay, simula Alt+Enter para forçar tela cheia
-                time.sleep(1.5)
-                pyautogui.hotkey('alt', 'enter')
-            else:
-                # No Linux/Mac
-                if os.system('which vlc > /dev/null') == 0:
-                    # Se tiver VLC instalado, usa ele em tela cheia
-                    video_process = subprocess.Popen(['vlc', '--fullscreen', video_path])
-                else:
-                    # Caso contrário, usa o player padrão
-                    opener = 'xdg-open' if os.name == 'posix' else 'open'
-                    video_process = subprocess.Popen([opener, video_path])
+            if file_type == 'video':
+                # Abre vídeo em tela cheia
+                if os.name == 'nt':
+                    video_process = subprocess.Popen(['start', '/max', '', file_path], shell=True)
                     time.sleep(1.5)
                     pyautogui.hotkey('alt', 'enter')
+                else:
+                    if os.system('which vlc > /dev/null') == 0:
+                        video_process = subprocess.Popen(['vlc', '--fullscreen', file_path])
+                    else:
+                        opener = 'xdg-open' if os.name == 'posix' else 'open'
+                        video_process = subprocess.Popen([opener, file_path])
+                        time.sleep(1.5)
+                        pyautogui.hotkey('alt', 'enter')
+            else:
+                # Abre apresentação e coloca em modo apresentação após 3 segundos
+                if os.name == 'nt':
+                    video_process = subprocess.Popen(['start', '', file_path], shell=True)
+                    time.sleep(3)
+                    pyautogui.press('f5')
+                else:
+                    opener = 'xdg-open' if os.name == 'posix' else 'open'
+                    video_process = subprocess.Popen([opener, file_path])
+                    time.sleep(3)
+                    pyautogui.press('f5')
             
-            logger.info(f"Vídeo iniciado com sucesso em tela cheia: {video_path}")
+            logger.info(f"Arquivo iniciado com sucesso: {file_path}")
             return jsonify({
-                'message': 'Vídeo iniciado com sucesso',
-                'video_path': video_path
+                'message': 'Arquivo iniciado com sucesso',
+                'file_path': file_path,
+                'file_type': file_type
             })
         except Exception as e:
-            error_msg = f"Erro ao abrir o vídeo: {str(e)}"
+            error_msg = f"Erro ao abrir o arquivo: {str(e)}"
             logger.error(error_msg)
             return jsonify({
                 'error': error_msg,
-                'video_path': video_path
+                'file_path': file_path
             }), 500
             
     except Exception as e:
@@ -697,31 +804,38 @@ def search_get(term):
         logger.error(error_msg)
         return jsonify({'error': error_msg}), 500
 
-@app.route('/search', methods=['POST'])
-def search_post():
-    """Endpoint POST original para buscar vídeos"""
-    logger.info("Recebida requisição POST para buscar vídeo")
-    global video_process
-    
+@app.route('/presentation/next', methods=['POST', 'GET'])
+def next_slide():
+    """Endpoint para avançar slide"""
     try:
-        data = request.get_json()
-        logger.info(f"Dados recebidos: {data}")
-        
-        if not data or 'term' not in data:
-            error_msg = "Termo de pesquisa não fornecido no JSON"
-            logger.error(error_msg)
-            return jsonify({
-                'error': error_msg,
-                'exemplo_correto': {'term': 'nome_do_video'}
-            }), 400
-        
-        search_term = data['term']
-        return search_get(search_term)
-        
+        pyautogui.press('right')
+        return jsonify({'message': 'Próximo slide'})
     except Exception as e:
-        error_msg = f"Erro ao processar requisição POST: {str(e)}"
+        error_msg = f"Erro ao avançar slide: {str(e)}"
         logger.error(error_msg)
-        return jsonify({'error': error_msg}), 400
+        return jsonify({'error': error_msg}), 500
+
+@app.route('/presentation/previous', methods=['POST', 'GET'])
+def previous_slide():
+    """Endpoint para voltar slide"""
+    try:
+        pyautogui.press('left')
+        return jsonify({'message': 'Slide anterior'})
+    except Exception as e:
+        error_msg = f"Erro ao voltar slide: {str(e)}"
+        logger.error(error_msg)
+        return jsonify({'error': error_msg}), 500
+
+@app.route('/presentation/fullscreen', methods=['POST', 'GET'])
+def toggle_presentation_fullscreen():
+    """Endpoint para alternar modo apresentação"""
+    try:
+        pyautogui.press('f5')
+        return jsonify({'message': 'Modo apresentação alternado'})
+    except Exception as e:
+        error_msg = f"Erro ao alternar modo apresentação: {str(e)}"
+        logger.error(error_msg)
+        return jsonify({'error': error_msg}), 500
 
 @app.route('/volume/<action>', methods=['GET'])
 def volume_get(action):
