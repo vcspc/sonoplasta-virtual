@@ -16,6 +16,8 @@ import time
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from dotenv import load_dotenv
+from qr_window import QRWindow
+import threading
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
@@ -826,7 +828,7 @@ def home():
                     background: linear-gradient(145deg, #1a1a1a, #2c3e50);
                 }
 
-                /* Página do YouTube */
+                /* P��gina do YouTube */
                 .youtube-page {
                     position: fixed;
                     top: 0;
@@ -1691,7 +1693,7 @@ def next_slide():
     """Endpoint para avançar slide"""
     try:
         pyautogui.press('right')
-        return jsonify({'message': 'Próximo slide'})
+        return jsonify({'message': 'Pr��ximo slide'})
     except Exception as e:
         error_msg = f"Erro ao avançar slide: {str(e)}"
         logger.error(error_msg)
@@ -1925,6 +1927,15 @@ if __name__ == '__main__':
     # Configuração do contexto SSL
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain('cert.pem', 'key.pem')
+    
+    # Inicia a janela QR Code em uma thread separada
+    def show_qr():
+        qr_window = QRWindow()
+        qr_window.run()
+    
+    qr_thread = threading.Thread(target=show_qr)
+    qr_thread.daemon = True  # A thread será encerrada quando o programa principal terminar
+    qr_thread.start()
     
     # Executa o servidor com HTTPS
     app.run(host='0.0.0.0', port=5000, ssl_context=context, debug=True) 
