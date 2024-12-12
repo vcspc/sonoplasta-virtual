@@ -227,8 +227,8 @@ def home():
                 .controls-group {
                     display: grid;
                     grid-template-columns: repeat(3, 1fr);
-                    gap: 15px;
-                    padding: 10px;
+                    gap: 22px;
+                    padding: 15px;
                     margin-bottom: 30px;
                 }
 
@@ -238,20 +238,21 @@ def home():
                 .screen-controls,
                 .system-controls {
                     grid-column: span 3;
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 15px;
+                    display: flex;
+                    justify-content: center;
+                    gap: 22px;
                 }
 
                 .control-button {
                     aspect-ratio: 1;
                     width: 100%;
-                    border-radius: 15px;
+                    max-width: 180px;
+                    border-radius: 20px;
                     border: none;
                     background: rgba(255, 255, 255, 0.1);
                     backdrop-filter: blur(5px);
                     transition: all 0.3s ease;
-                    font-size: calc(20px + 1vw);
+                    font-size: calc(30px + 1vw);
                     color: #ecf0f1;
                     display: flex;
                     align-items: center;
@@ -271,6 +272,19 @@ def home():
                     background: linear-gradient(145deg, #e74c3c, #c0392b);
                 }
 
+                .playback-controls {
+                    grid-column: span 3;
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    gap: 15px;
+                    justify-items: center;
+                }
+
+                .playback-controls .control-button {
+                    width: 100%;
+                    max-width: 180px;
+                }
+
                 .playback-controls .control-button {
                     background: linear-gradient(145deg, #2ecc71, #27ae60);
                 }
@@ -279,153 +293,32 @@ def home():
                     background: linear-gradient(145deg, #9b59b6, #8e44ad);
                 }
 
+                .screen-controls {
+                    grid-column: span 3;
+                    display: flex;
+                    justify-content: center;
+                    gap: 15px;
+                }
+
                 .screen-controls .control-button {
+                    width: 100%;
+                    max-width: 180px;
                     background: linear-gradient(145deg, #f1c40f, #f39c12);
                 }
 
+                .system-controls {
+                    display: flex;
+                    gap: 15px;
+                    justify-content: center;
+                    width: 100%;
+                }
+
                 .system-controls .control-button {
-                    background: linear-gradient(145deg, #1abc9c, #16a085);
+                    color: #666;
                 }
 
-                .control-button.danger {
-                    background: linear-gradient(145deg, #e74c3c, #c0392b);
-                }
-
-                @media (max-width: 768px) {
-                    .controls {
-                        padding: 15px;
-                        margin: 10px;
-                    }
-
-                    .controls-group {
-                        gap: 10px;
-                    }
-
-                    .section-title {
-                        font-size: 1.2em;
-                        margin: 20px 0 15px;
-                    }
-                }
-
-                @media (max-width: 480px) {
-                    .control-button {
-                        font-size: calc(16px + 1vw);
-                    }
-
-                    .controls {
-                        padding: 10px;
-                        margin: 5px;
-                    }
-
-                    .section-title {
-                        font-size: 1.1em;
-                        margin: 15px 0 10px;
-                    }
-                }
-
-                @keyframes pulse {
-                    0% { transform: scale(1); }
-                    50% { transform: scale(1.05); }
-                    100% { transform: scale(1); }
-                }
-
-                .control-button:active {
-                    animation: pulse 0.3s ease-in-out;
-                }
-
-                .control-button::after {
-                    content: attr(title);
-                    position: absolute;
-                    bottom: -40px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: rgba(0, 0, 0, 0.8);
-                    color: white;
-                    padding: 5px 10px;
-                    border-radius: 5px;
-                    font-size: 12px;
-                    opacity: 0;
-                    visibility: hidden;
-                    transition: all 0.3s ease;
-                    white-space: nowrap;
-                }
-
-                .control-button:hover::after {
-                    opacity: 1;
-                    visibility: visible;
-                    bottom: -30px;
-                }
-
-                .now-playing {
-                    text-align: center;
-                    margin: 15px 0;
-                    padding: 10px;
-                    color: #6c757d;
-                    font-style: italic;
-                    background-color: #f8f9fa;
-                    border-radius: 8px;
-                    word-break: break-word;
-                }
-
-                .muted {
-                    color: #dc3545 !important;
-                }
-
-                /* Estilos para Mobile */
-                @media (max-width: 600px) {
-                    body {
-                        padding: 10px;
-                    }
-
-                    .container {
-                        padding: 15px;
-                    }
-
-                    h1 {
-                        font-size: 20px;
-                    }
-
-                    .control-button {
-                        width: 45px;
-                        height: 45px;
-                        font-size: 18px;
-                    }
-
-                    .controls {
-                        padding: 15px;
-                    }
-
-                    .controls-group {
-                        gap: 10px;
-                    }
-
-                    #searchInput {
-                        padding: 12px;
-                        font-size: 14px;
-                    }
-
-                    .warning {
-                        padding: 12px;
-                        font-size: 14px;
-                    }
-
-                    #searchResults li {
-                        padding: 12px;
-                        font-size: 14px;
-                    }
-                }
-
-                /* Suporte para telas muito pequenas */
-                @media (max-width: 350px) {
-                    .controls-group {
-                        flex-direction: column;
-                        align-items: center;
-                    }
-
-                    .volume-controls {
-                        width: 100%;
-                        justify-content: center;
-                    }
+                .system-controls .control-button:hover {
+                    background-color: #f0f0f0;
                 }
 
                 /* Suporte para Dark Mode */
@@ -592,9 +485,9 @@ def home():
                 /* Estilos específicos para dispositivos móveis */
                 @media (max-width: 480px) {
                     .control-button {
-                        width: 80px;
-                        height: 80px;
-                        font-size: 28px;
+                        width: 67px;
+                        height: 67px;
+                        font-size: 27px;
                     }
 
                     .controls-group {
@@ -828,7 +721,7 @@ def home():
                     background: linear-gradient(145deg, #1a1a1a, #2c3e50);
                 }
 
-                /* P��gina do YouTube */
+                /* Página do YouTube */
                 .youtube-page {
                     position: fixed;
                     top: 0;
@@ -959,6 +852,164 @@ def home():
                 .youtube-fullscreen-button:hover {
                     transform: scale(1.1);
                     background: #cc0000;
+                }
+
+                .screen-controls {
+                    grid-column: span 3;
+                    display: flex;
+                    justify-content: center;
+                    gap: 15px;
+                }
+
+                .screen-controls .control-button {
+                    width: 100%;
+                    max-width: 180px;
+                    background: linear-gradient(145deg, #f1c40f, #f39c12);
+                }
+
+                .system-controls .control-button {
+                    background: linear-gradient(145deg, #1abc9c, #16a085);
+                }
+
+                .control-button.danger {
+                    background: linear-gradient(145deg, #e74c3c, #c0392b);
+                }
+
+                @media (max-width: 768px) {
+                    .controls {
+                        padding: 15px;
+                        margin: 10px;
+                    }
+
+                    .controls-group {
+                        gap: 10px;
+                    }
+
+                    .section-title {
+                        font-size: 1.2em;
+                        margin: 20px 0 15px;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .control-button {
+                        font-size: calc(16px + 1vw);
+                    }
+
+                    .controls {
+                        padding: 10px;
+                        margin: 5px;
+                    }
+
+                    .section-title {
+                        font-size: 1.1em;
+                        margin: 15px 0 10px;
+                    }
+                }
+
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                    100% { transform: scale(1); }
+                }
+
+                .control-button:active {
+                    animation: pulse 0.3s ease-in-out;
+                }
+
+                .control-button::after {
+                    content: attr(title);
+                    position: absolute;
+                    bottom: -40px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(0, 0, 0, 0.8);
+                    color: white;
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                    font-size: 12px;
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: all 0.3s ease;
+                    white-space: nowrap;
+                }
+
+                .control-button:hover::after {
+                    opacity: 1;
+                    visibility: visible;
+                    bottom: -30px;
+                }
+
+                .now-playing {
+                    text-align: center;
+                    margin: 15px 0;
+                    padding: 10px;
+                    color: #6c757d;
+                    font-style: italic;
+                    background-color: #f8f9fa;
+                    border-radius: 8px;
+                    word-break: break-word;
+                }
+
+                .muted {
+                    color: #dc3545 !important;
+                }
+
+                /* Estilos para Mobile */
+                @media (max-width: 600px) {
+                    body {
+                        padding: 10px;
+                    }
+
+                    .container {
+                        padding: 15px;
+                    }
+
+                    h1 {
+                        font-size: 20px;
+                    }
+
+                    .control-button {
+                        width: 45px;
+                        height: 45px;
+                        font-size: 18px;
+                    }
+
+                    .controls {
+                        padding: 15px;
+                    }
+
+                    .controls-group {
+                        gap: 15px;
+                    }
+
+                    #searchInput {
+                        padding: 12px;
+                        font-size: 14px;
+                    }
+
+                    .warning {
+                        padding: 12px;
+                        font-size: 14px;
+                    }
+
+                    #searchResults li {
+                        padding: 12px;
+                        font-size: 14px;
+                    }
+                }
+
+                /* Suporte para telas muito pequenas */
+                @media (max-width: 350px) {
+                    .controls-group {
+                        flex-direction: column;
+                        align-items: center;
+                    }
+
+                    .volume-controls {
+                        width: 100%;
+                        justify-content: center;
+                    }
                 }
             </style>
         </head>
@@ -1693,7 +1744,7 @@ def next_slide():
     """Endpoint para avançar slide"""
     try:
         pyautogui.press('right')
-        return jsonify({'message': 'Pr��ximo slide'})
+        return jsonify({'message': 'Próximo slide'})
     except Exception as e:
         error_msg = f"Erro ao avançar slide: {str(e)}"
         logger.error(error_msg)
