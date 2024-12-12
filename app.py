@@ -130,7 +130,7 @@ def home():
                 body { 
                     font-family: Arial, sans-serif;
                     background-color: #f5f5f5;
-                    padding: 20px;
+                    padding: 10px;
                     min-height: 100vh;
                 }
 
@@ -207,8 +207,8 @@ def home():
 
                 .controls {
                     max-width: 1200px;
-                    margin: 20px auto;
-                    padding: 20px;
+                    margin: 10px auto;
+                    padding: 10px;
                     background: linear-gradient(145deg, #2c3e50, #3498db);
                     border-radius: 20px;
                     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -225,11 +225,12 @@ def home():
                 }
 
                 .controls-group {
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 22px;
-                    padding: 15px;
-                    margin-bottom: 30px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 15px;
+                    padding: 10px;
+                    margin-bottom: 20px;
                 }
 
                 .volume-controls,
@@ -237,88 +238,51 @@ def home():
                 .presentation-controls,
                 .screen-controls,
                 .system-controls {
-                    grid-column: span 3;
                     display: flex;
                     justify-content: center;
-                    gap: 22px;
+                    gap: 15px;
+                    width: 100%;
+                    flex-wrap: wrap;
+                    padding: 5px;
                 }
 
                 .control-button {
-                    aspect-ratio: 1;
-                    width: 100%;
-                    max-width: 180px;
-                    border-radius: 20px;
-                    border: none;
-                    background: rgba(255, 255, 255, 0.1);
-                    backdrop-filter: blur(5px);
-                    transition: all 0.3s ease;
-                    font-size: calc(30px + 1vw);
-                    color: #ecf0f1;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
-                    position: relative;
-                    overflow: hidden;
-                }
-
-                .control-button:hover {
-                    transform: translateY(-5px);
-                    background: rgba(255, 255, 255, 0.2);
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                    width: 100px !important;
+                    height: 100px !important;
+                    font-size: 32px !important;
+                    border-radius: 15px;
+                    margin: 5px;
                 }
 
                 .volume-controls .control-button {
                     background: linear-gradient(145deg, #e74c3c, #c0392b);
                 }
 
-                .playback-controls {
-                    grid-column: span 3;
-                    display: grid;
-                    grid-template-columns: 1fr;
-                    gap: 15px;
-                    justify-items: center;
+                .playback-controls .control-button {
+                    width: 125px !important;
+                    height: 125px !important;
+                    font-size: 40px !important;
                 }
 
-                .playback-controls .control-button {
-                    width: 100%;
-                    max-width: 180px;
-                }
-
-                .playback-controls .control-button {
-                    background: linear-gradient(145deg, #2ecc71, #27ae60);
+                .screen-controls .control-button {
+                    background: linear-gradient(145deg, #f1c40f, #f39c12);
                 }
 
                 .presentation-controls .control-button {
                     background: linear-gradient(145deg, #9b59b6, #8e44ad);
                 }
 
-                .screen-controls {
-                    grid-column: span 3;
-                    display: flex;
-                    justify-content: center;
-                    gap: 15px;
-                }
-
-                .screen-controls .control-button {
-                    width: 100%;
-                    max-width: 180px;
-                    background: linear-gradient(145deg, #f1c40f, #f39c12);
-                }
-
-                .system-controls {
-                    display: flex;
-                    gap: 15px;
-                    justify-content: center;
-                    width: 100%;
-                }
-
                 .system-controls .control-button {
-                    color: #666;
+                    background: linear-gradient(145deg, #1abc9c, #16a085);
                 }
 
-                .system-controls .control-button:hover {
-                    background-color: #f0f0f0;
+                .control-button.danger {
+                    color: #dc3545;
+                }
+
+                .control-button.danger:hover {
+                    background-color: #dc3545;
+                    color: white;
                 }
 
                 /* Suporte para Dark Mode */
@@ -432,6 +396,18 @@ def home():
                     .section-title {
                         font-size: 1.1em;
                         margin: 12px 0 8px 0;
+                    }
+
+                    .control-button {
+                        width: 80px !important;
+                        height: 80px !important;
+                        font-size: 24px !important;
+                    }
+
+                    .playback-controls .control-button {
+                        width: 100px !important;
+                        height: 100px !important;
+                        font-size: 32px !important;
                     }
                 }
 
@@ -897,7 +873,7 @@ def home():
                     }
 
                     .controls {
-                        padding: 10px;
+                        padding: 7px;
                         margin: 5px;
                     }
 
@@ -958,7 +934,7 @@ def home():
                 /* Estilos para Mobile */
                 @media (max-width: 600px) {
                     body {
-                        padding: 10px;
+                        padding: 5px;
                     }
 
                     .container {
@@ -976,11 +952,23 @@ def home():
                     }
 
                     .controls {
-                        padding: 15px;
+                        padding: 7px;
+                        margin: 5px;
                     }
 
                     .controls-group {
-                        gap: 15px;
+                        gap: 10px;
+                        padding: 5px;
+                        margin-bottom: 10px;
+                    }
+
+                    .volume-controls,
+                    .playback-controls,
+                    .presentation-controls,
+                    .screen-controls,
+                    .system-controls {
+                        gap: 10px;
+                        padding: 3px;
                     }
 
                     #searchInput {

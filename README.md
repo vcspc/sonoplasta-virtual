@@ -10,6 +10,7 @@ Um aplicativo web profissional para controle de reprodução de vídeos e aprese
 - Função mudo/desmudo
 - Play/Pause
 - Integração com YouTube para busca e reprodução de vídeos
+- Geração de QR Code para compartilhamento rápido
 
 ### 🎞️ Gerenciamento de Apresentações
 - Navegação entre slides (anterior/próximo)
@@ -68,10 +69,27 @@ YOUTUBE_API_KEY=sua_chave_aqui
 ```bash
 pip install -r requirements.txt
 ```
-4. Inicie o servidor:
+4. Configure o Firewall do Windows:
+   - Pressione `Win + R`
+   - Digite `wf.msc` e pressione Enter
+   - Clique em "Regras de Entrada" no painel esquerdo
+   - Clique em "Nova Regra..." no painel direito
+   - Selecione "Porta" e clique em "Próximo"
+   - Selecione "TCP" e digite "5000" em "Portas locais específicas"
+   - Clique em "Próximo" e selecione "Permitir a conexão"
+   - Siga as etapas restantes mantendo as opções padrão
+   - Nomeie a regra como "Sonoplasta Virtual"
+
+5. Inicie o servidor:
 ```bash
 python app.py
 ```
+
+### 💡 Dicas para Melhor Experiência
+- Use o Git Bash como terminal padrão para melhor compatibilidade
+- Configure seu navegador para abrir em uma nova aba ao iniciar
+- Mantenha os arquivos de mídia organizados em subpastas para facilitar a busca
+- Use o QR Code para compartilhar rapidamente o acesso com outros dispositivos na rede
 
 ## 📱 Uso
 
