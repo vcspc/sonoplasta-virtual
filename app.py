@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, redirect, url_for
+from flask import Flask, request, jsonify, redirect, url_for, render_template
 import pyautogui
 import os
 from pathlib import Path
@@ -1108,6 +1108,10 @@ def home():
                             <i class="fab fa-youtube"></i>
                             YouTube
                         </a>
+                        <a href="/upload-page" class="menu-item">
+                            <i class="fas fa-upload"></i>
+                            Upload de Arquivos
+                        </a>
                         <a href="#" class="menu-item" onclick="showSettings(); return false;">
                             <i class="fas fa-cog"></i>
                             Configurações
@@ -1942,6 +1946,77 @@ def youtube_fullscreen():
         return jsonify({'message': 'Comando de tela cheia enviado'})
     except Exception as e:
         error_msg = f"Erro ao alternar tela cheia: {str(e)}"
+        logger.error(error_msg)
+        return jsonify({'error': error_msg}), 500
+
+@app.route('/upload-page')
+def upload_page():
+    """Página de upload de arquivos"""
+    return render_template('upload.html')
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    """Endpoint para fazer upload de arquivos"""
+    logger.info("Recebida requisição de upload de arquivo")
+    
+    # Verifica a senha
+    password = request.form.get('password', '')
+    if password != os.getenv('UPLOAD_PASSWORD'):
+        error_msg = "Senha incorreta"
+        logger.error(error_msg)
+        return jsonify({'error': error_msg}), 401
+    
+    if 'file' not in request.files:
+        error_msg = "Nenhum arquivo enviado"
+        logger.error(error_msg)
+        return jsonify({'error': error_msg}), 400
+    
+    file = request.files['file']
+    category = request.form.get('category', '')  # Obtém a categoria selecionada
+    
+    if file.filename == '':
+        error_msg = "Nenhum arquivo selecionado"
+        logger.error(error_msg)
+        return jsonify({'error': error_msg}), 400
+    
+    # Extensões permitidas
+    video_extensions = {'.mp4', '.avi', '.mkv', '.mov'}
+    presentation_extensions = {'.ppt', '.pptx', '.odp', '.key', '.pdf'}
+    audio_extensions = {'.mp3', '.wav', '.ogg', '.m4a', '.wma'}
+    image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp'}
+    
+    # Verifica a extensão do arquivo
+    file_ext = os.path.splitext(file.filename)[1].lower()
+    allowed_extensions = video_extensions | presentation_extensions | audio_extensions | image_extensions
+    
+    if file_ext not in allowed_extensions:
+        error_msg = f"Extensão de arquivo não permitida. Extensões permitidas: {', '.join(allowed_extensions)}"
+        logger.error(error_msg)
+        return jsonify({'error': error_msg}), 400
+    
+    try:
+        # Cria a pasta files se não existir
+        os.makedirs('files', exist_ok=True)
+        
+        # Adiciona a categoria ao nome do arquivo se fornecida
+        filename = file.filename
+        if category:
+            name, ext = os.path.splitext(filename)
+            filename = f"{name}_{category}{ext}"
+        
+        # Salva o arquivo
+        file_path = os.path.join('files', filename)
+        file.save(file_path)
+        
+        logger.info(f"Arquivo salvo com sucesso: {file_path}")
+        return jsonify({
+            'message': 'Arquivo enviado com sucesso',
+            'filename': filename,
+            'category': category
+        })
+        
+    except Exception as e:
+        error_msg = f"Erro ao salvar arquivo: {str(e)}"
         logger.error(error_msg)
         return jsonify({'error': error_msg}), 500
 

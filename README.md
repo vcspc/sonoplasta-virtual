@@ -11,6 +11,13 @@ Um aplicativo web profissional para controle de reprodução de vídeos e aprese
 - Play/Pause
 - Integração com YouTube para busca e reprodução de vídeos
 - Geração de QR Code para compartilhamento rápido
+- Reprodução de vídeos em tela cheia
+- Controle de apresentações de slides
+- Reprodução de áudio
+- Upload de arquivos com categorização
+  - Suporte para vídeos, áudios, apresentações e imagens
+  - Categorias disponíveis: Ofertório, Entrada da Plataforma, Despedida, Adoração Infantil
+  - Acesse em: https://localhost:5000/upload-page
 
 ### 🎞️ Gerenciamento de Apresentações
 - Navegação entre slides (anterior/próximo)
@@ -64,6 +71,7 @@ Um aplicativo web profissional para controle de reprodução de vídeos e aprese
 2. Crie um arquivo `.env` e adicione sua chave API do YouTube:
 ```
 YOUTUBE_API_KEY=sua_chave_aqui
+UPLOAD_PASSWORD=sua_senha_de_upload
 ```
 3. Instale as dependências:
 ```bash
@@ -90,6 +98,7 @@ python app.py
 - Configure seu navegador para abrir em uma nova aba ao iniciar
 - Mantenha os arquivos de mídia organizados em subpastas para facilitar a busca
 - Use o QR Code para compartilhar rapidamente o acesso com outros dispositivos na rede
+- A senha padrão para upload de arquivos é definida na variável de ambiente `UPLOAD_PASSWORD`
 
 ## 📱 Uso
 

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Arquivos - Sonoplasta Virtual</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --primary-hover: #45a049;
+            --background-color: #f5f5f5;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --error-color: #dc3545;
+            --success-color: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 20px;
+            background: linear-gradient(145deg, #666, #555);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+
+        .back-button i {
+            margin-right: 10px;
+            font-size: 1.1em;
+        }
+
+        .upload-container {
+            background: var(--container-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px var(--shadow-color);
+            transition: transform 0.3s ease;
+        }
+
+        .upload-container:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 25px;
+            font-size: 2em;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 1.1em;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            background: var(--background-color);
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]:hover {
+            border-color: var(--primary-color);
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input[type="password"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background-color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        small {
+            display: block;
+            margin-top: 8px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(145deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: none;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            border: 2px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .alert-error {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 2px solid var(--error-color);
+            color: var(--error-color);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .upload-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.7em;
+            }
+
+            .back-button {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .upload-container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            label {
+                font-size: 1em;
+            }
+
+            button {
+                padding: 12px;
+                font-size: 1em;
+            }
+
+            small {
+                font-size: 0.8em;
+            }
+        }
+
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #1a1a1a;
+                --container-bg: #2d2d2d;
+                --text-color: #ffffff;
+                --border-color: #404040;
+                --shadow-color: rgba(0, 0, 0, 0.3);
+            }
+
+            input[type="file"],
+            input[type="password"],
+            select {
+                background-color: #333;
+                color: white;
+            }
+
+            small {
+                color: #aaa;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Voltar para Início
+        </a>
+        
+        <div class="upload-container">
+            <h1>Upload de Arquivos</h1>
+            
+            <div id="alertSuccess" class="alert alert-success"></div>
+            <div id="alertError" class="alert alert-error"></div>
+            
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="file">
+                        <i class="fas fa-file-upload"></i>
+                        Selecione o arquivo
+                    </label>
+                    <input type="file" id="file" name="file" required>
+                    <small>
+                        <i class="fas fa-info-circle"></i>
+                        Formatos permitidos: .mp4, .avi, .mkv, .mov, .ppt, .pptx, .odp, .key, .pdf, .mp3, .wav, .ogg, .m4a, .wma, .jpg, .jpeg, .png, .gif, .bmp
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i>
+                        Senha
+                    </label>
+                    <input type="password" id="password" name="password" required placeholder="Digite a senha para upload">
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">
+                        <i class="fas fa-folder"></i>
+                        Categoria (opcional)
+                    </label>
+                    <select id="category" name="category">
+                        <option value="">Sem categoria</option>
+                        <option value="ofertorio">Ofertório</option>
+                        <option value="entrada">Entrada da Plataforma</option>
+                        <option value="despedida">Despedida</option>
+                        <option value="adoracao_infantil">Adoração Infantil</option>
+                    </select>
+                </div>
+                
+                <button type="submit">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    Enviar Arquivo
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('file');
+            const categorySelect = document.getElementById('category');
+            const alertSuccess = document.getElementById('alertSuccess');
+            const alertError = document.getElementById('alertError');
+            const submitButton = this.querySelector('button[type="submit"]');
+            
+            formData.append('file', fileInput.files[0]);
+            formData.append('category', categorySelect.value);
+            formData.append('password', document.getElementById('password').value);
+            
+            // Esconde as mensagens anteriores
+            alertSuccess.style.display = 'none';
+            alertError.style.display = 'none';
+            
+            // Desabilita o botão e mostra loading
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alertError.textContent = data.error;
+                    alertError.style.display = 'block';
+                } else {
+                    alertSuccess.textContent = data.message;
+                    alertSuccess.style.display = 'block';
+                    // Limpa o formulário
+                    fileInput.value = '';
+                    categorySelect.value = '';
+                    document.getElementById('password').value = '';
+                }
+            })
+            .catch(error => {
+                alertError.textContent = 'Erro ao enviar arquivo: ' + error.message;
+                alertError.style.display = 'block';
+            })
+            .finally(() => {
+                // Reabilita o botão e restaura o texto original
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Enviar Arquivo';
+            });
+        });
+    </script>
+</body>
+</html> 
