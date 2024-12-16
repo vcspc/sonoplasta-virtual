@@ -10,6 +10,9 @@ from ..services.youtube_service import YouTubeService
 from ..utils.helpers import find_file
 from ..config.config import Config
 from werkzeug.utils import secure_filename
+import subprocess
+import json
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -366,3 +369,73 @@ def get_doxologia_files(category):
     except Exception as e:
         logger.error(f"Erro ao listar arquivos da categoria {category}: {str(e)}")
         return jsonify({'error': str(e)}), 500 
+
+@main.route('/youtube-download')
+def youtube_download_page():
+    """Renderiza a página de download do YouTube"""
+    return render_template('youtube_download.html')
+
+@main.route('/youtube/download', methods=['POST'])
+def download_youtube():
+    """Processa o download de vídeos do YouTube usando yt-dlp"""
+    try:
+        data = request.get_json()
+        url = data.get('url')
+        category = data.get('category')
+
+        if not url:
+            return jsonify({'error': 'URL não fornecida'}), 400
+
+        # Configura o diretório de download
+        download_path = config.FILES_DIR
+        if category:
+            download_path = os.path.join(download_path, category)
+            os.makedirs(download_path, exist_ok=True)
+
+        # Configura o comando yt-dlp com parâmetros otimizados para compatibilidade
+        command = [
+            'yt-dlp',
+            '--no-check-certificate',
+            # Formato de vídeo e áudio mais compatível
+            '-f', 'bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/best[ext=mp4][height<=720]',
+            '--merge-output-format', 'mp4',  # Força saída em MP4
+            '--audio-format', 'aac',  # Usa AAC para áudio
+            '--audio-quality', '0',  # Melhor qualidade de áudio
+            # Configurações adicionais do FFmpeg para garantir compatibilidade
+            '--postprocessor-args', 'ffmpeg:-c:v libx264 -c:a aac -ar 44100 -b:a 192k -strict experimental',
+            '-o', os.path.join(download_path, '%(title)s.%(ext)s'),
+            '--no-warnings',
+            url
+        ]
+
+        # Executa o comando
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True
+        )
+
+        # Aguarda a conclusão e obtém a saída
+        stdout, stderr = process.communicate()
+
+        if process.returncode != 0:
+            error_msg = stderr.strip()
+            if "HTTP Error 403" in error_msg:
+                error_msg = "Acesso negado pelo YouTube. Tente novamente mais tarde."
+            elif "Video unavailable" in error_msg:
+                error_msg = "Vídeo indisponível. Verifique se o link está correto."
+            elif "ffmpeg" in error_msg.lower():
+                error_msg = "Erro na conversão do vídeo. Verifique se o FFmpeg está instalado corretamente."
+            
+            logger.error(f"Erro no download do YouTube: {error_msg}")
+            return jsonify({'error': error_msg}), 500
+
+        return jsonify({
+            'message': 'Download concluído com sucesso',
+            'output': stdout.strip()
+        })
+
+    except Exception as e:
+        logger.error(f"Erro no download do YouTube: {str(e)}")
+        return jsonify({'error': str(e)}), 500

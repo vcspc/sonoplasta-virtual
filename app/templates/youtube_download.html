@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Download YouTube - Sonoplasta Virtual</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --hover-color: #0056b3;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --border-radius: 12px;
+            --spacing: 16px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: 80px;
+        }
+
+        .download-form {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-group select {
+            background-color: white;
+        }
+
+        .download-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+
+        .download-button:hover {
+            background: var(--hover-color);
+        }
+
+        .download-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .back-button {
+            position: fixed;
+            top: var(--spacing);
+            left: var(--spacing);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: var(--hover-color);
+            transform: scale(1.05);
+        }
+
+        .progress-container {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                padding-top: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='/'">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <div class="container">
+        <h1>Download de Vídeos do YouTube</h1>
+
+        <div class="download-form">
+            <form id="downloadForm" onsubmit="startDownload(event)">
+                <div class="form-group">
+                    <label for="url">URL do Vídeo:</label>
+                    <input type="text" id="url" name="url" required 
+                           placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Categoria:</label>
+                    <select id="category" name="category" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="entrada">Entrada</option>
+                        <option value="despedida">Despedida</option>
+                        <option value="ofertorio">Ofertório</option>
+                        <option value="adoracao_infantil">Adoração Infantil</option>
+                        <option value="">Pasta Principal</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="download-button" id="downloadButton">
+                    <i class="fas fa-download"></i> Baixar Vídeo
+                </button>
+            </form>
+
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div id="progressText">Iniciando download...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function showToast(message, duration = 3000) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, duration);
+        }
+
+        function startDownload(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const url = form.url.value;
+            const category = form.category.value;
+            const button = document.getElementById('downloadButton');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+
+            if (!url.includes('youtube.com/') && !url.includes('youtu.be/')) {
+                showToast('URL inválida. Por favor, insira um link do YouTube válido.');
+                return;
+            }
+
+            button.disabled = true;
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Iniciando download...';
+
+            fetch('/youtube/download', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    url: url,
+                    category: category
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showToast('Erro: ' + data.error, 5000);
+                    progressText.textContent = 'Erro no download: ' + data.error;
+                    progressFill.style.backgroundColor = '#dc3545';
+                } else {
+                    showToast('Download concluído com sucesso!');
+                    progressFill.style.width = '100%';
+                    progressText.textContent = 'Download concluído!';
+                    form.reset();
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                showToast('Erro ao realizar o download. Tente novamente mais tarde.', 5000);
+                progressText.textContent = 'Erro na conexão';
+                progressFill.style.backgroundColor = '#dc3545';
+            })
+            .finally(() => {
+                button.disabled = false;
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    progressFill.style.backgroundColor = 'var(--primary-color)';
+                }, 3000);
+            });
+        }
+    </script>
+</body>
+</html> 

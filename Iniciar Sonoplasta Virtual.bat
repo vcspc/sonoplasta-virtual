@@ -17,6 +17,16 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+REM Verifica se o FFmpeg está instalado
+ffmpeg -version > nul 2>&1
+if %errorlevel% neq 0 (
+    echo [AVISO] FFmpeg não encontrado!
+    echo Para funcionalidade completa, instale o FFmpeg de:
+    echo https://ffmpeg.org/download.html
+    echo.
+    pause
+)
+
 REM Verifica se o ambiente virtual existe
 if not exist "venv" (
     echo Criando ambiente virtual...
@@ -42,12 +52,21 @@ if not exist "app\files\adoracao_infantil" mkdir "app\files\adoracao_infantil"
 REM Instala/atualiza dependências
 echo Verificando dependências...
 python -m pip install --upgrade pip > nul
+
+REM Instala yt-dlp globalmente
+echo Instalando yt-dlp...
+pip install -U yt-dlp
+
+REM Instala outras dependências
 pip install -r requirements.txt > nul
 if %errorlevel% neq 0 (
     echo [ERRO] Falha ao instalar dependências!
     pause
     exit /b 1
 )
+
+REM Atualiza yt-dlp para a última versão
+yt-dlp -U
 
 REM Limpa a tela
 cls
