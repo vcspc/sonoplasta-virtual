@@ -324,3 +324,45 @@ def upload_file():
             return jsonify({'error': 'Erro ao salvar arquivo'}), 500
     
     return jsonify({'error': 'Tipo de arquivo não permitido'}), 400 
+
+@main.route('/doxologia')
+def doxologia_page():
+    """Renderiza a página de doxologia"""
+    return render_template('doxologia.html')
+
+@main.route('/api/doxologia/<category>')
+def get_doxologia_files(category):
+    """Retorna os arquivos de uma categoria específica da doxologia"""
+    try:
+        category_path = os.path.join(config.FILES_DIR, category)
+        
+        if not os.path.exists(category_path):
+            os.makedirs(category_path, exist_ok=True)
+            return jsonify({'files': []})
+        
+        files = []
+        for file in os.listdir(category_path):
+            file_path = os.path.join(category_path, file)
+            if os.path.isfile(file_path):
+                extension = os.path.splitext(file)[1].lower()
+                file_type = None
+                
+                if extension in config.VIDEO_EXTENSIONS:
+                    file_type = 'video'
+                elif extension in config.AUDIO_EXTENSIONS:
+                    file_type = 'audio'
+                elif extension in config.PRESENTATION_EXTENSIONS:
+                    file_type = 'presentation'
+                
+                if file_type:
+                    files.append({
+                        'name': file,
+                        'type': file_type,
+                        'path': file_path
+                    })
+        
+        return jsonify({'files': files})
+        
+    except Exception as e:
+        logger.error(f"Erro ao listar arquivos da categoria {category}: {str(e)}")
+        return jsonify({'error': str(e)}), 500 
