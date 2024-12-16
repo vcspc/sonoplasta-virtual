@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sonoplasta Virtual</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Botão do Menu -->
+    <div class="menu-button" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Menu Lateral -->
+    <div class="menu-overlay" onclick="toggleMenu()"></div>
+    <div class="side-menu">
+        <div class="menu-header">
+            <h2>Menu</h2>
+            <button class="close-menu" onclick="toggleMenu()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="menu-items">
+            <a href="/" class="menu-item">
+                <i class="fas fa-home"></i>
+                Início
+            </a>
+            <a href="#" class="menu-item" onclick="showYoutube(); return false;">
+                <i class="fab fa-youtube"></i>
+                YouTube
+            </a>
+            <a href="/upload" class="menu-item">
+                <i class="fas fa-upload"></i>
+                Upload de Arquivos
+            </a>
+        </div>
+    </div>
+
+    <!-- Página do YouTube -->
+    <div class="youtube-page">
+        <div class="youtube-header">
+            <button class="back-button" onclick="hideYoutube()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1>YouTube</h1>
+        </div>
+        
+        <div class="youtube-search">
+            <input type="text" id="youtubeSearchInput" placeholder="Buscar no YouTube...">
+            <button onclick="searchYoutube()">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        
+        <div class="youtube-results"></div>
+
+        <!-- Controle de Mídia Flutuante -->
+        <div class="floating-media-controls">
+            <button class="floating-control-button" onclick="adjustVolume('down')" title="Diminuir Volume">
+                <i class="fas fa-volume-down"></i>
+            </button>
+            <button class="floating-control-button" onclick="rewindVideo()" title="Retroceder 10s">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button class="floating-control-button" onclick="togglePlayPause()" title="Play/Pause">
+                <i class="fas fa-play" id="floatingPlayPauseIcon"></i>
+            </button>
+            <button class="floating-control-button" onclick="adjustVolume('up')" title="Aumentar Volume">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="floating-control-button" onclick="toggleFullscreen()" title="Tela Cheia">
+                <i class="fas fa-expand"></i>
+            </button>
+            <button class="floating-control-button" onclick="closeWindow()" title="Fechar Janela (Alt+F4)">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="container">
+        <h1>Sonoplasta Virtual</h1>
+        
+        <div class="search-container">
+            <input type="text" 
+                   id="searchInput" 
+                   placeholder="Digite para buscar arquivos..."
+                   autocomplete="off">
+            <ul id="searchResults"></ul>
+        </div>
+
+        <div class="warning">
+            <strong>Dica:</strong> Digite parte do nome do arquivo para buscar
+        </div>
+
+        <div id="nowPlaying" class="now-playing" style="display: none;">
+            Reproduzindo: <span id="currentVideo">Nenhum vídeo</span>
+        </div>
+
+        <div class="controls">
+            <h2 class="section-title">Mídia</h2>
+            <div class="controls-group">
+                <div class="volume-controls">
+                    <button class="control-button" onclick="adjustVolume('down')" title="Diminuir Volume">
+                        <i class="fas fa-volume-down"></i>
+                    </button>
+                    <button class="control-button" onclick="toggleMute()" title="Mudo/Desmudo" id="muteButton">
+                        <i class="fas fa-volume-mute" id="muteIcon"></i>
+                    </button>
+                    <button class="control-button" onclick="adjustVolume('up')" title="Aumentar Volume">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                </div>
+                
+                <div class="playback-controls">
+                    <button class="control-button" onclick="togglePlayPause()" title="Play/Pause">
+                        <i class="fas fa-play" id="playPauseIcon"></i>
+                    </button>
+                </div>
+                
+                <div class="screen-controls">
+                    <button class="control-button" onclick="toggleFullscreen()" title="Tela Cheia (F11)">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                    <button class="control-button" onclick="hideControls()" title="Ocultar Controles (H)">
+                        <i class="fas fa-eye-slash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <h2 class="section-title">Apresentação</h2>
+            <div class="controls-group">
+                <div class="presentation-controls">
+                    <button class="control-button" onclick="previousSlide()" title="Slide Anterior (←)">
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button class="control-button" onclick="togglePresentationMode()" title="Modo Apresentação (F5)">
+                        <i class="fas fa-tv"></i>
+                    </button>
+                    <button class="control-button" onclick="nextSlide()" title="Próximo Slide (→)">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                </div>
+            </div>
+
+            <h2 class="section-title">Sistema</h2>
+            <div class="controls-group">
+                <div class="system-controls">
+                    <button class="control-button" onclick="minimizeWindow()" title="Mostrar Área de Trabalho (Win+D)">
+                        <i class="fas fa-desktop"></i>
+                    </button>
+                    <button class="control-button" onclick="maximizeWindow()" title="Maximizar Janela (Win+↑)">
+                        <i class="fas fa-square"></i>
+                    </button>
+                    <button class="control-button" onclick="switchApp()" title="Alternar Aplicativos (Alt+Tab)">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="control-button danger" onclick="closeApp()" title="Fechar Aplicativo (Alt+F4)">
+                        <i class="fas fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const nowPlaying = document.getElementById('nowPlaying');
+        const currentVideo = document.getElementById('currentVideo');
+        const playPauseIcon = document.getElementById('playPauseIcon');
+        const muteIcon = document.getElementById('muteIcon');
+        let timeoutId;
+        let isPlaying = false;
+        let isMuted = false;
+
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            const searchTerm = this.value.trim();
+            
+            if (searchTerm === '') {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            timeoutId = setTimeout(() => {
+                fetch(`/api/search?term=${encodeURIComponent(searchTerm)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        searchResults.innerHTML = '';
+                        
+                        if (data.videos && data.videos.length > 0) {
+                            data.videos.forEach(file => {
+                                const li = document.createElement('li');
+                                const icon = file.type === 'video' ? 'fas fa-film' : 
+                                            file.type === 'audio' ? 'fas fa-music' : 
+                                            'fas fa-file-powerpoint';
+                                const type = file.type === 'video' ? 'Vídeo' : 
+                                            file.type === 'audio' ? 'Áudio' : 
+                                            'Apresentação';
+                                li.innerHTML = `
+                                    <i class="${icon}"></i>
+                                    ${file.name}
+                                    <span class="file-type">${type}</span>
+                                `;
+                                li.onclick = () => {
+                                    fetch(`/search/${encodeURIComponent(file.name)}`)
+                                        .then(response => response.json())
+                                        .then(result => {
+                                            if (result.error) {
+                                                alert(result.error);
+                                            } else {
+                                                nowPlaying.style.display = 'block';
+                                                currentVideo.textContent = file.name;
+                                                isPlaying = true;
+                                                playPauseIcon.className = 'fas fa-pause';
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('Erro:', error);
+                                            alert('Erro ao abrir o arquivo');
+                                        });
+                                };
+                                searchResults.appendChild(li);
+                            });
+                            searchResults.style.display = 'block';
+                        } else {
+                            const li = document.createElement('li');
+                            li.textContent = 'Nenhum arquivo encontrado';
+                            searchResults.appendChild(li);
+                            searchResults.style.display = 'block';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        searchResults.innerHTML = '<li>Erro ao buscar arquivos</li>';
+                        searchResults.style.display = 'block';
+                    });
+            }, 300);
+        });
+
+        // Funções de controle
+        function togglePlayPause() {
+            fetch('/play')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.error) {
+                        alert(result.error);
+                    } else {
+                        isPlaying = !isPlaying;
+                        playPauseIcon.className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
+                        document.getElementById('floatingPlayPauseIcon').className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao controlar reprodução');
+                });
+        }
+
+        function adjustVolume(action) {
+            fetch(`/volume/${action}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.error) {
+                        alert(result.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao ajustar volume');
+                });
+        }
+
+        function toggleMute() {
+            fetch('/volume/mute')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.error) {
+                        alert(result.error);
+                    } else {
+                        isMuted = !isMuted;
+                        muteIcon.className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao alternar mudo');
+                });
+        }
+
+        function toggleFullscreen() {
+            if (document.querySelector('.youtube-page').style.display === 'block') {
+                fetch('/youtube/fullscreen')
+                    .then(response => response.json())
+                    .catch(error => {
+                        console.error('Erro:', error);
+                    });
+            } else {
+                fetch('/fullscreen')
+                    .then(response => response.json())
+                    .catch(error => {
+                        console.error('Erro:', error);
+                    });
+            }
+        }
+
+        function hideControls() {
+            fetch('/hide-controls')
+                .then(response => response.json())
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+        }
+
+        function nextSlide() {
+            fetch('/presentation/next', { method: 'POST' })
+                .then(response => response.json())
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+        }
+
+        function previousSlide() {
+            fetch('/presentation/previous', { method: 'POST' })
+                .then(response => response.json())
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+        }
+
+        function togglePresentationMode() {
+            fetch('/presentation/fullscreen', { method: 'POST' })
+                .then(response => response.json())
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+        }
+
+        function minimizeWindow() {
+            fetch('/system/minimize', { method: 'POST' })
+                .then(response => response.json())
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+        }
+
+        function maximizeWindow() {
+            fetch('/system/maximize', { method: 'POST' })
+                .then(response => response.json())
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+        }
+
+        function switchApp() {
+            fetch('/system/switch-app', { method: 'POST' })
+                .then(response => response.json())
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+        }
+
+        function closeApp() {
+            if (confirm('Tem certeza que deseja fechar o aplicativo atual?')) {
+                fetch('/close-app', { method: 'POST' })
+                    .then(response => response.json())
+                    .catch(error => {
+                        console.error('Erro:', error);
+                    });
+            }
+        }
+
+        // Fecha a lista de resultados quando clicar fora
+        document.addEventListener('click', function(e) {
+            if (!searchResults.contains(e.target) && e.target !== searchInput) {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        // Atalhos de teclado
+        document.addEventListener('keydown', function(e) {
+            if (document.activeElement === searchInput) return;
+
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    togglePlayPause();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    adjustVolume('up');
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    adjustVolume('down');
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    nextSlide();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    previousSlide();
+                    break;
+                case 'KeyM':
+                    e.preventDefault();
+                    toggleMute();
+                    break;
+                case 'KeyH':
+                    e.preventDefault();
+                    hideControls();
+                    break;
+                case 'F11':
+                    e.preventDefault();
+                    toggleFullscreen();
+                    break;
+                case 'F5':
+                    e.preventDefault();
+                    togglePresentationMode();
+                    break;
+            }
+        });
+
+        // Funções do Menu e YouTube
+        function toggleMenu() {
+            const menu = document.querySelector('.side-menu');
+            const overlay = document.querySelector('.menu-overlay');
+            
+            if (menu.classList.contains('active')) {
+                menu.classList.remove('active');
+                overlay.style.display = 'none';
+            } else {
+                menu.classList.add('active');
+                overlay.style.display = 'block';
+            }
+        }
+
+        function showYoutube() {
+            document.querySelector('.youtube-page').style.display = 'block';
+            document.querySelector('.container').style.display = 'none';
+            toggleMenu();
+        }
+
+        function hideYoutube() {
+            document.querySelector('.youtube-page').style.display = 'none';
+            document.querySelector('.container').style.display = 'block';
+        }
+
+        function searchYoutube() {
+            const query = document.getElementById('youtubeSearchInput').value;
+            if (!query) return;
+
+            fetch(`/youtube/search?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const resultsDiv = document.querySelector('.youtube-results');
+                    resultsDiv.innerHTML = '';
+                    
+                    if (data.error) {
+                        resultsDiv.innerHTML = `<div class="error">${data.error}</div>`;
+                        return;
+                    }
+
+                    data.videos.forEach(video => {
+                        const videoCard = document.createElement('div');
+                        videoCard.className = 'video-card';
+                        videoCard.onclick = () => playYoutubeVideo(video.id);
+                        
+                        videoCard.innerHTML = `
+                            <img src="${video.thumbnail}" class="video-thumbnail" alt="${video.title}">
+                            <div class="video-info">
+                                <div class="video-title">${video.title}</div>
+                                <div class="video-channel">${video.channel}</div>
+                            </div>
+                        `;
+                        
+                        resultsDiv.appendChild(videoCard);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    const resultsDiv = document.querySelector('.youtube-results');
+                    resultsDiv.innerHTML = '<div class="error">Erro ao buscar vídeos</div>';
+                });
+        }
+
+        function playYoutubeVideo(videoId) {
+            fetch(`/youtube/play/${videoId}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.error) {
+                        alert(result.error);
+                    } else {
+                        isPlaying = true;
+                        playPauseIcon.className = 'fas fa-pause';
+                        document.getElementById('floatingPlayPauseIcon').className = 'fas fa-pause';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao reproduzir vídeo');
+                });
+        }
+
+        // Adiciona evento de Enter no campo de busca do YouTube
+        document.getElementById('youtubeSearchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchYoutube();
+            }
+        });
+
+        function rewindVideo() {
+            if (document.querySelector('.youtube-page').style.display === 'block') {
+                fetch('/youtube/rewind')
+                    .then(response => response.json())
+                    .catch(error => {
+                        console.error('Erro:', error);
+                    });
+            }
+        }
+
+        function closeWindow() {
+            if (confirm('Tem certeza que deseja fechar a janela atual?')) {
+                fetch('/system/close-window', { method: 'POST' })
+                    .then(response => response.json())
+                    .catch(error => {
+                        console.error('Erro:', error);
+                    });
+            }
+        }
+    </script>
+</body>
+</html> 
