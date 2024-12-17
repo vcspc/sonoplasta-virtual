@@ -533,12 +533,14 @@
                     data.videos.forEach(video => {
                         const videoCard = document.createElement('div');
                         videoCard.className = 'video-card';
+                        videoCard.onclick = () => playYoutubeVideo(video.id);
+                        
                         videoCard.innerHTML = `
                             <img src="${video.thumbnail}" class="video-thumbnail" alt="${video.title}">
                             <div class="video-info">
                                 <div class="video-title">${video.title}</div>
                                 <div class="video-channel">${video.channel}</div>
-                                <button class="add-to-playlist-btn" onclick="addToPlaylist('youtube', '${video.id}', '${video.title}')">
+                                <button class="add-to-playlist-btn" onclick="event.stopPropagation(); addToPlaylist('youtube', '${video.id}', '${video.title}')">
                                     <i class="fas fa-plus"></i> Adicionar à Playlist
                                 </button>
                             </div>
