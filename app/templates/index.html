@@ -230,15 +230,15 @@
                     <button class="control-button" onclick="adjustVolume('down')" title="Diminuir Volume">
                         <i class="fas fa-volume-down"></i>
                     </button>
-                    <button class="control-button" onclick="toggleMute()" title="Mudo/Desmudo" id="muteButton">
-                        <i class="fas fa-volume-mute" id="muteIcon"></i>
-                    </button>
                     <button class="control-button" onclick="adjustVolume('up')" title="Aumentar Volume">
                         <i class="fas fa-volume-up"></i>
                     </button>
                 </div>
                 
                 <div class="playback-controls">
+                    <button class="control-button" onclick="rewindLocalMedia()" title="Retroceder (Ctrl+B)">
+                        <i class="fas fa-undo"></i>
+                    </button>
                     <button class="control-button" onclick="togglePlayPause()" title="Play/Pause">
                         <i class="fas fa-play" id="playPauseIcon"></i>
                     </button>
@@ -635,7 +635,7 @@
                 })
                 .catch(error => {
                     console.error('Erro:', error);
-                    alert('Erro ao reproduzir v��deo');
+                    alert('Erro ao reproduzir vídeo');
                 });
         }
 
