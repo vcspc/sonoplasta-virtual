@@ -588,3 +588,35 @@ def remove_from_playlist(playlist_id, item_id):
     except Exception as e:
         logger.error(f"Erro ao remover item da playlist: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+@main.route('/youtube/press_key', methods=['POST'])
+def youtube_press_key():
+    """Pressiona uma tecla para controlar o YouTube"""
+    try:
+        data = request.get_json()
+        key = data.get('key')
+        if key:
+            # Adiciona um pequeno delay para garantir que a janela está focada
+            time.sleep(0.1)
+            pyautogui.press(key)
+            return jsonify({'message': f'Tecla {key} pressionada com sucesso'})
+        return jsonify({'error': 'Tecla não especificada'}), 400
+    except Exception as e:
+        logger.error(f"Erro ao pressionar tecla: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@main.route('/system/press_keys', methods=['POST'])
+def system_press_keys():
+    """Pressiona uma combinação de teclas"""
+    try:
+        data = request.get_json()
+        keys = data.get('keys', [])
+        if keys:
+            # Adiciona um pequeno delay para garantir que a janela está focada
+            time.sleep(0.1)
+            pyautogui.hotkey(*keys)
+            return jsonify({'message': 'Teclas pressionadas com sucesso'})
+        return jsonify({'error': 'Teclas não especificadas'}), 400
+    except Exception as e:
+        logger.error(f"Erro ao pressionar teclas: {str(e)}")
+        return jsonify({'error': str(e)}), 500

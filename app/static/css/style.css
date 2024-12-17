@@ -670,3 +670,83 @@ h1 {
 .add-to-playlist-btn:hover {
     background: rgba(52, 152, 219, 1);
 } 
+
+/* Estilos do Player Flutuante da Playlist */
+.floating-player {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(18, 18, 18, 0.95);
+    padding: 15px 25px;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    min-width: 300px;
+}
+
+.floating-player-info {
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.floating-player-controls {
+    display: flex;
+    gap: 15px;
+}
+
+.floating-player-controls button {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-player-controls button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.floating-player-controls button:active {
+    transform: scale(0.95);
+} 
+
+/* Player para YouTube (vermelho) */
+.floating-player.youtube {
+    background-color: rgba(255, 0, 0, 0.95);
+    display: none;
+}
+
+/* Player para arquivos locais (azul) */
+.floating-player.local {
+    background-color: rgba(0, 123, 255, 0.95);
+    display: none;
+}
+
+/* Ajuste o estilo dos botões para cada tipo */
+.floating-player.youtube .floating-player-controls button:hover {
+    background-color: rgba(200, 0, 0, 0.3);
+}
+
+.floating-player.local .floating-player-controls button:hover {
+    background-color: rgba(0, 90, 200, 0.3);
+} 

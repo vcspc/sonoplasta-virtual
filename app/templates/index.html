@@ -136,6 +136,55 @@
         <div class="playlists-container">
             <!-- As playlists serão inseridas aqui dinamicamente -->
         </div>
+
+        <div class="floating-player youtube">
+            <div class="floating-player-info">
+                <span id="youtubeNowPlaying">Nenhum vídeo do YouTube em reprodução</span>
+            </div>
+            <div class="floating-player-controls">
+                <button onclick="adjustPlaylistVolume('down')" title="Diminuir Volume">
+                    <i class="fas fa-volume-down"></i>
+                </button>
+                <button onclick="rewindPlaylistMedia()" title="Retroceder 10s">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button onclick="togglePlaylistPlayPause()" title="Play/Pause">
+                    <i class="fas fa-play" id="youtubePlayPauseIcon"></i>
+                </button>
+                <button onclick="adjustPlaylistVolume('up')" title="Aumentar Volume">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <button onclick="togglePlaylistFullscreen()" title="Tela Cheia">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button onclick="closePlaylistWindow()" title="Fechar (Alt+F4)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="floating-player local">
+            <div class="floating-player-info">
+                <span id="localNowPlaying">Nenhum arquivo em reprodução</span>
+            </div>
+            <div class="floating-player-controls">
+                <button onclick="adjustVolume('down')" title="Diminuir Volume">
+                    <i class="fas fa-volume-down"></i>
+                </button>
+                <button onclick="togglePlayPause()" title="Play/Pause">
+                    <i class="fas fa-play" id="localPlayPauseIcon"></i>
+                </button>
+                <button onclick="adjustVolume('up')" title="Aumentar Volume">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <button onclick="toggleFullscreen()" title="Tela Cheia">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button onclick="closeWindow()" title="Fechar (Alt+F4)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Conteúdo Principal -->
@@ -234,6 +283,7 @@
         let timeoutId;
         let isPlaying = false;
         let isMuted = false;
+        let youtubeIsPlaying = false;
 
         searchInput.addEventListener('input', function() {
             clearTimeout(timeoutId);
@@ -611,95 +661,9 @@
         function hidePlaylist() {
             document.querySelector('.playlist-page').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
+            hideAllPlayers();
         }
 
-        function createNewPlaylist() {
-            const name = prompt('Digite o nome da nova playlist:');
-            if (name) {
-                fetch('/playlist/create', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                    } else {
-                        loadPlaylists();
-                    }
-                });
-            }
-        }
-
-        function addToPlaylist(type, id, title) {
-            const playlists = getPlaylists();
-            if (playlists.length === 0) {
-                alert('Crie uma playlist primeiro!');
-                return;
-            }
-
-            // Mostra as playlists disponíveis
-            const playlistNames = playlists.map((p, index) => `${index + 1} - ${p.name}`).join('\n');
-            const selectedIndex = prompt(`Escolha a playlist (digite o número):\n${playlistNames}`);
-            
-            if (!selectedIndex) return;
-            
-            const playlist = playlists[parseInt(selectedIndex) - 1];
-            if (!playlist) {
-                alert('Playlist inválida!');
-                return;
-            }
-
-            // Para arquivos, vamos armazenar apenas o nome do arquivo
-            const itemId = type === 'file' ? id.split('/').pop() : id;
-
-            // Adiciona o item à playlist
-            playlist.items.push({
-                id: Date.now(),
-                type: type,
-                item_id: itemId,
-                title: title
-            });
-
-            savePlaylists(playlists);
-            alert('Item adicionado à playlist!');
-        }
-
-        function loadPlaylists() {
-            fetch('/playlist/items')
-                .then(response => response.json())
-                .then(data => {
-                    const container = document.querySelector('.playlists-container');
-                    container.innerHTML = '';
-                    
-                    data.playlists.forEach(playlist => {
-                        const playlistElement = document.createElement('div');
-                        playlistElement.className = 'playlist-item';
-                        playlistElement.innerHTML = `
-                            <h3>${playlist.name}</h3>
-                            <div class="playlist-items">
-                                ${playlist.items.map(item => `
-                                    <div class="playlist-item-row">
-                                        <span>${item.title}</span>
-                                        <button onclick="playItem('${item.type}', '${item.item_id}')">
-                                            <i class="fas fa-play"></i>
-                                        </button>
-                                        <button onclick="removeFromPlaylist(${playlist.id}, '${item.item_id}')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `;
-                        container.appendChild(playlistElement);
-                    });
-                });
-        }
-
-        // Funções de gerenciamento de playlist usando localStorage
         function createNewPlaylist() {
             const name = prompt('Digite o nome da nova playlist:');
             if (!name) return;
@@ -713,7 +677,7 @@
 
             playlists.push(newPlaylist);
             savePlaylists(playlists);
-            loadPlaylists();
+                        loadPlaylists();
         }
 
         function addToPlaylist(type, id, title) {
@@ -748,43 +712,6 @@
 
             savePlaylists(playlists);
             alert('Item adicionado à playlist!');
-        }
-
-        function removeFromPlaylist(playlistId, itemId) {
-            if (confirm('Tem certeza que deseja remover este item?')) {
-                const playlists = getPlaylists();
-                const playlist = playlists.find(p => p.id === playlistId);
-                if (playlist) {
-                    playlist.items = playlist.items.filter(item => item.id !== itemId);
-                    savePlaylists(playlists);
-                    loadPlaylists();
-                }
-            }
-        }
-
-        function playItem(type, itemId) {
-            if (type === 'youtube') {
-                playYoutubeVideo(itemId);
-            } else if (type === 'file') {
-                // Usa o nome do arquivo diretamente na busca
-                fetch(`/search/${encodeURIComponent(itemId)}`)
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.error) {
-                            alert(result.error);
-                        } else {
-                            nowPlaying.style.display = 'block';
-                            currentVideo.textContent = itemId;
-                            isPlaying = true;
-                            playPauseIcon.className = 'fas fa-pause';
-                            document.getElementById('floatingPlayPauseIcon').className = 'fas fa-pause';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro:', error);
-                        alert('Erro ao reproduzir arquivo');
-                    });
-            }
         }
 
         function loadPlaylists() {
@@ -801,7 +728,7 @@
                         ${playlist.items.map(item => `
                             <div class="playlist-item-row">
                                 <span>${item.title}</span>
-                                <button onclick="playItem('${item.type}', '${item.item_id}')">
+                                <button onclick="playItem('${item.type}', '${item.item_id}', '${item.title}')">
                                     <i class="fas fa-play"></i>
                                 </button>
                                 <button onclick="removeFromPlaylist(${playlist.id}, ${item.id})">
@@ -815,6 +742,153 @@
             });
         }
 
+        function removeFromPlaylist(playlistId, itemId) {
+            if (confirm('Tem certeza que deseja remover este item?')) {
+                const playlists = getPlaylists();
+                const playlist = playlists.find(p => p.id === playlistId);
+                if (playlist) {
+                    playlist.items = playlist.items.filter(item => item.id !== itemId);
+                    savePlaylists(playlists);
+                    loadPlaylists();
+                }
+            }
+        }
+
+        function playItem(type, itemId, title) {
+            // Esconde ambos os players primeiro
+            document.querySelector('.floating-player.youtube').style.display = 'none';
+            document.querySelector('.floating-player.local').style.display = 'none';
+
+            if (type === 'youtube') {
+                // Mostra o player do YouTube
+                document.querySelector('.floating-player.youtube').style.display = 'flex';
+                document.getElementById('youtubeNowPlaying').textContent = title;
+                document.getElementById('youtubePlayPauseIcon').className = 'fas fa-pause';
+                youtubeIsPlaying = true; // Define o estado inicial como reproduzindo
+                playYoutubeVideo(itemId);
+            } else if (type === 'file') {
+                // Mostra o player local
+                document.querySelector('.floating-player.local').style.display = 'flex';
+                document.getElementById('localNowPlaying').textContent = title;
+                document.getElementById('localPlayPauseIcon').className = 'fas fa-pause';
+                
+                fetch(`/search/${encodeURIComponent(itemId)}`)
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.error) {
+                            alert(result.error);
+                        } else {
+                            isPlaying = true;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        alert('Erro ao reproduzir arquivo');
+                    });
+            }
+        }
+
+        function adjustPlaylistVolume(action) {
+            fetch(`/volume/${action}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.error) {
+                        alert(result.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+        }
+
+        function togglePlaylistPlayPause() {
+            if (document.querySelector('.floating-player.youtube').style.display === 'flex') {
+                fetch('/youtube/press_key', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ key: 'space' })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.error) {
+                        alert(result.error);
+                    } else {
+                        youtubeIsPlaying = !youtubeIsPlaying;
+                        document.getElementById('youtubePlayPauseIcon').className = 
+                            youtubeIsPlaying ? 'fas fa-pause' : 'fas fa-play';
+                    }
+                })
+                .catch(error => console.error('Erro:', error));
+            } else {
+                // Controles para arquivos locais (mantém o código existente)
+                fetch('/play')
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.error) {
+                            alert(result.error);
+                        } else {
+                            isPlaying = !isPlaying;
+                            document.getElementById('localPlayPauseIcon').className = 
+                                isPlaying ? 'fas fa-pause' : 'fas fa-play';
+                        }
+                    })
+                    .catch(error => console.error('Erro:', error));
+            }
+        }
+
+        function rewindPlaylistMedia() {
+            if (document.querySelector('.floating-player.youtube').style.display === 'flex') {
+                // Retroceder vídeo do YouTube
+                fetch('/youtube/rewind')
+                    .then(response => response.json())
+                    .catch(error => console.error('Erro:', error));
+            }
+        }
+
+        function togglePlaylistFullscreen() {
+            if (document.querySelector('.floating-player.youtube').style.display === 'flex') {
+                // Tela cheia para YouTube
+                fetch('/youtube/fullscreen')
+                    .then(response => response.json())
+                    .catch(error => console.error('Erro:', error));
+            } else {
+                // Tela cheia para arquivos locais
+                fetch('/fullscreen')
+                    .then(response => response.json())
+                    .catch(error => console.error('Erro:', error));
+            }
+        }
+
+        function closePlaylistWindow() {
+            if (confirm('Tem certeza que deseja fechar a janela atual?')) {
+                if (document.querySelector('.floating-player.youtube').style.display === 'flex') {
+                    fetch('/system/press_keys', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ keys: ['alt', 'f4'] })
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.error) {
+                            alert(result.error);
+                        } else {
+                            // Esconde o player após fechar a janela
+                            document.querySelector('.floating-player.youtube').style.display = 'none';
+                        }
+                    })
+                    .catch(error => console.error('Erro:', error));
+                } else {
+                    fetch('/system/close-window', { method: 'POST' })
+                        .then(response => response.json())
+                        .catch(error => console.error('Erro:', error));
+                }
+            }
+        }
+
         // Funções auxiliares para manipular o localStorage
         function getPlaylists() {
             const playlistsJson = localStorage.getItem('playlists');
@@ -823,6 +897,12 @@
 
         function savePlaylists(playlists) {
             localStorage.setItem('playlists', JSON.stringify(playlists));
+        }
+
+        // Função para esconder os players quando necessário
+        function hideAllPlayers() {
+            document.querySelector('.floating-player.youtube').style.display = 'none';
+            document.querySelector('.floating-player.local').style.display = 'none';
         }
     </script>
 </body>
