@@ -677,42 +677,44 @@ h1 {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(18, 18, 18, 0.95);
-    padding: 15px 25px;
-    border-radius: 30px;
+    padding: 25px 35px;
+    border-radius: 40px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 25px;
     z-index: 1000;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    min-width: 300px;
+    min-width: 450px;
 }
 
 .floating-player-info {
     color: white;
     text-align: center;
-    font-size: 14px;
+    font-size: 18px;
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding: 0 15px;
 }
 
 .floating-player-controls {
     display: flex;
-    gap: 15px;
+    gap: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .floating-player-controls button {
     background: transparent;
     border: none;
     color: white;
-    font-size: 20px;
-    width: 40px;
-    height: 40px;
+    font-size: 32px;
+    width: 75px;
+    height: 75px;
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -721,14 +723,79 @@ h1 {
     justify-content: center;
 }
 
+/* Responsividade para dispositivos móveis */
+@media (max-width: 768px) {
+    .floating-player {
+        width: 95%;
+        min-width: unset;
+        padding: 20px 25px;
+        bottom: 15px;
+        gap: 20px;
+    }
+
+    .floating-player-controls {
+        gap: 20px;
+    }
+
+    .floating-player-controls button {
+        width: 65px;
+        height: 65px;
+        font-size: 28px;
+    }
+
+    .floating-player-info {
+        font-size: 16px;
+    }
+}
+
+/* Para telas muito pequenas */
+@media (max-width: 360px) {
+    .floating-player {
+        padding: 15px 20px;
+        gap: 15px;
+    }
+
+    .floating-player-controls {
+        gap: 15px;
+    }
+
+    .floating-player-controls button {
+        width: 55px;
+        height: 55px;
+        font-size: 24px;
+    }
+
+    .floating-player-info {
+        font-size: 14px;
+    }
+}
+
+/* Ajuste para telas maiores */
+@media (min-width: 1024px) {
+    .floating-player {
+        min-width: 500px;
+        padding: 30px 40px;
+    }
+
+    .floating-player-controls button {
+        width: 85px;
+        height: 85px;
+        font-size: 36px;
+    }
+
+    .floating-player-info {
+        font-size: 20px;
+    }
+}
+
+/* Efeitos de hover e active */
 .floating-player-controls button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
     transform: scale(1.1);
 }
 
 .floating-player-controls button:active {
     transform: scale(0.95);
-} 
+}
 
 /* Player para YouTube (vermelho) */
 .floating-player.youtube {
@@ -749,4 +816,64 @@ h1 {
 
 .floating-player.local .floating-player-controls button:hover {
     background-color: rgba(0, 90, 200, 0.3);
+} 
+
+/* Estilos para o botão de ocultar player */
+.toggle-player-btn {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: inherit;
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.player-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    width: 100%;
+}
+
+/* Estilos para o cabeçalho da playlist */
+.playlist-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.delete-playlist-btn {
+    background: rgba(255, 59, 48, 0.8);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delete-playlist-btn:hover {
+    background: rgba(255, 59, 48, 1);
+}
+
+/* Ajuste a transição do player */
+.floating-player {
+    transition: all 0.3s ease;
+}
+
+.floating-player.minimized {
+    padding: 10px;
+    min-height: 40px;
 } 

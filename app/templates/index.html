@@ -138,51 +138,67 @@
         </div>
 
         <div class="floating-player youtube">
-            <div class="floating-player-info">
-                <span id="youtubeNowPlaying">Nenhum vídeo do YouTube em reprodução</span>
-            </div>
-            <div class="floating-player-controls">
-                <button onclick="adjustPlaylistVolume('down')" title="Diminuir Volume">
-                    <i class="fas fa-volume-down"></i>
-                </button>
-                <button onclick="rewindPlaylistMedia()" title="Retroceder 10s">
-                    <i class="fas fa-undo"></i>
-                </button>
-                <button onclick="togglePlaylistPlayPause()" title="Play/Pause">
-                    <i class="fas fa-play" id="youtubePlayPauseIcon"></i>
-                </button>
-                <button onclick="adjustPlaylistVolume('up')" title="Aumentar Volume">
-                    <i class="fas fa-volume-up"></i>
-                </button>
-                <button onclick="togglePlaylistFullscreen()" title="Tela Cheia">
-                    <i class="fas fa-expand"></i>
-                </button>
-                <button onclick="closePlaylistWindow()" title="Fechar (Alt+F4)">
-                    <i class="fas fa-times"></i>
-                </button>
+            <button class="toggle-player-btn" onclick="togglePlayerVisibility('youtube')" title="Ocultar/Mostrar Player">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="player-content">
+                <div class="floating-player-info">
+                    <span id="youtubeNowPlaying">Nenhum vídeo do YouTube em reprodução</span>
+                </div>
+                <div class="floating-player-controls">
+                    <button onclick="adjustPlaylistVolume('down')" title="Diminuir Volume">
+                        <i class="fas fa-volume-down"></i>
+                    </button>
+                    <button onclick="rewindPlaylistMedia()" title="Retroceder 10s">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button onclick="togglePlaylistPlayPause()" title="Play/Pause">
+                        <i class="fas fa-play" id="youtubePlayPauseIcon"></i>
+                    </button>
+                    <button onclick="adjustPlaylistVolume('up')" title="Aumentar Volume">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <button onclick="togglePlaylistFullscreen()" title="Tela Cheia">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <button onclick="closePlaylistWindow()" title="Fechar (Alt+F4)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
         <div class="floating-player local">
-            <div class="floating-player-info">
-                <span id="localNowPlaying">Nenhum arquivo em reprodução</span>
-            </div>
-            <div class="floating-player-controls">
-                <button onclick="adjustVolume('down')" title="Diminuir Volume">
-                    <i class="fas fa-volume-down"></i>
-                </button>
-                <button onclick="togglePlayPause()" title="Play/Pause">
-                    <i class="fas fa-play" id="localPlayPauseIcon"></i>
-                </button>
-                <button onclick="adjustVolume('up')" title="Aumentar Volume">
-                    <i class="fas fa-volume-up"></i>
-                </button>
-                <button onclick="toggleFullscreen()" title="Tela Cheia">
-                    <i class="fas fa-expand"></i>
-                </button>
-                <button onclick="closeWindow()" title="Fechar (Alt+F4)">
-                    <i class="fas fa-times"></i>
-                </button>
+            <button class="toggle-player-btn" onclick="togglePlayerVisibility('local')" title="Ocultar/Mostrar Player">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="player-content">
+                <div class="floating-player-info">
+                    <span id="localNowPlaying">Nenhum arquivo em reprodução</span>
+                </div>
+                <div class="floating-player-controls">
+                    <button onclick="adjustVolume('down')" title="Diminuir Volume">
+                        <i class="fas fa-volume-down"></i>
+                    </button>
+                    <button onclick="rewindLocalMedia()" title="Retroceder (Ctrl+B)">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button onclick="togglePlayPause()" title="Play/Pause">
+                        <i class="fas fa-play" id="localPlayPauseIcon"></i>
+                    </button>
+                    <button onclick="adjustVolume('up')" title="Aumentar Volume">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <button onclick="hidePlayerControls()" title="Ocultar Controles do Player">
+                        <i class="fas fa-eye-slash"></i>
+                    </button>
+                    <button onclick="toggleFullscreen()" title="Tela Cheia">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <button onclick="closeWindow()" title="Fechar (Alt+F4)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -619,7 +635,7 @@
                 })
                 .catch(error => {
                     console.error('Erro:', error);
-                    alert('Erro ao reproduzir vídeo');
+                    alert('Erro ao reproduzir v��deo');
                 });
         }
 
@@ -723,7 +739,12 @@
                 const playlistElement = document.createElement('div');
                 playlistElement.className = 'playlist-item';
                 playlistElement.innerHTML = `
-                    <h3>${playlist.name}</h3>
+                    <div class="playlist-header-row">
+                        <h3>${playlist.name}</h3>
+                        <button onclick="deletePlaylist(${playlist.id})" class="delete-playlist-btn">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                     <div class="playlist-items">
                         ${playlist.items.map(item => `
                             <div class="playlist-item-row">
@@ -903,6 +924,63 @@
         function hideAllPlayers() {
             document.querySelector('.floating-player.youtube').style.display = 'none';
             document.querySelector('.floating-player.local').style.display = 'none';
+        }
+
+        function rewindLocalMedia() {
+            fetch('/system/press_keys', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ keys: ['ctrl', 'b'] })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    alert(result.error);
+                }
+            })
+            .catch(error => console.error('Erro:', error));
+        }
+
+        function togglePlayerVisibility(playerType) {
+            const player = document.querySelector(`.floating-player.${playerType}`);
+            const content = player.querySelector('.player-content');
+            const btn = player.querySelector('.toggle-player-btn i');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'flex';
+                btn.className = 'fas fa-chevron-down';
+            } else {
+                content.style.display = 'none';
+                btn.className = 'fas fa-chevron-up';
+            }
+        }
+
+        function deletePlaylist(playlistId) {
+            if (confirm('Tem certeza que deseja excluir esta playlist?')) {
+                const playlists = getPlaylists();
+                const updatedPlaylists = playlists.filter(p => p.id !== playlistId);
+                savePlaylists(updatedPlaylists);
+                loadPlaylists();
+            }
+        }
+
+        function hidePlayerControls() {
+            // Simula um clique no centro da tela
+            fetch('/system/click_center', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    alert(result.error);
+                }
+            })
+            .catch(error => console.error('Erro:', error));
         }
     </script>
 </body>

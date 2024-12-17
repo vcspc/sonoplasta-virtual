@@ -620,3 +620,23 @@ def system_press_keys():
     except Exception as e:
         logger.error(f"Erro ao pressionar teclas: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+@main.route('/system/click_center', methods=['POST'])
+def click_center():
+    """Simula um clique no centro da tela"""
+    try:
+        # Obtém o tamanho da tela
+        screen_width, screen_height = pyautogui.size()
+        
+        # Calcula o centro da tela
+        center_x = screen_width // 2
+        center_y = screen_height // 2
+        
+        # Move o mouse para o centro e clica
+        pyautogui.click(center_x, center_y)
+        
+        return jsonify({'message': 'Clique no centro da tela executado com sucesso'})
+    except Exception as e:
+        error_msg = f"Erro ao clicar no centro da tela: {str(e)}"
+        logger.error(error_msg)
+        return jsonify({'error': error_msg}), 500
