@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, redirect, url_for, render_template
+from flask import Blueprint, request, jsonify, redirect, url_for, render_template, Response
 from pathlib import Path
 import os
 import logging
@@ -375,13 +375,20 @@ def youtube_download_page():
     """Renderiza a página de download do YouTube"""
     return render_template('youtube_download.html')
 
-@main.route('/youtube/download', methods=['POST'])
+@main.route('/youtube/download', methods=['POST', 'GET'])
 def download_youtube():
     """Processa o download de vídeos do YouTube usando yt-dlp"""
     try:
-        data = request.get_json()
-        url = data.get('url')
-        category = data.get('category')
+        # Pega os dados dependendo do método da requisição
+        if request.method == 'POST':
+            data = request.get_json()
+            url = data.get('url')
+            category = data.get('category')
+            # Retorna imediatamente após iniciar o processo
+            return jsonify({'status': 'iniciado'})
+        else:  # GET
+            url = request.args.get('url')
+            category = request.args.get('category')
 
         if not url:
             return jsonify({'error': 'URL não fornecida'}), 400
@@ -392,49 +399,63 @@ def download_youtube():
             download_path = os.path.join(download_path, category)
             os.makedirs(download_path, exist_ok=True)
 
-        # Configura o comando yt-dlp com parâmetros otimizados para compatibilidade
+        # Configura o comando yt-dlp
         command = [
             'yt-dlp',
             '--no-check-certificate',
-            # Formato de vídeo e áudio mais compatível
             '-f', 'bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/best[ext=mp4][height<=720]',
-            '--merge-output-format', 'mp4',  # Força saída em MP4
-            '--audio-format', 'aac',  # Usa AAC para áudio
-            '--audio-quality', '0',  # Melhor qualidade de áudio
-            # Configurações adicionais do FFmpeg para garantir compatibilidade
+            '--merge-output-format', 'mp4',
+            '--audio-format', 'aac',
+            '--audio-quality', '0',
             '--postprocessor-args', 'ffmpeg:-c:v libx264 -c:a aac -ar 44100 -b:a 192k -strict experimental',
             '-o', os.path.join(download_path, '%(title)s.%(ext)s'),
-            '--no-warnings',
+            '--newline',
+            '--progress',
+            '--progress-template', '%(progress._percent_str)s',
             url
         ]
 
-        # Executa o comando
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True
-        )
+        def generate():
+            try:
+                process = subprocess.Popen(
+                    command,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    universal_newlines=True,
+                    bufsize=1
+                )
 
-        # Aguarda a conclusão e obtém a saída
-        stdout, stderr = process.communicate()
+                while True:
+                    output = process.stdout.readline()
+                    if output == '' and process.poll() is not None:
+                        break
+                    if output:
+                        try:
+                            progress = float(output.strip().replace('%', ''))
+                            yield f"data: {json.dumps({'progress': progress})}\n\n"
+                        except (ValueError, TypeError):
+                            continue
 
-        if process.returncode != 0:
-            error_msg = stderr.strip()
-            if "HTTP Error 403" in error_msg:
-                error_msg = "Acesso negado pelo YouTube. Tente novamente mais tarde."
-            elif "Video unavailable" in error_msg:
-                error_msg = "Vídeo indisponível. Verifique se o link está correto."
-            elif "ffmpeg" in error_msg.lower():
-                error_msg = "Erro na conversão do vídeo. Verifique se o FFmpeg está instalado corretamente."
-            
-            logger.error(f"Erro no download do YouTube: {error_msg}")
-            return jsonify({'error': error_msg}), 500
+                # Verifica se houve erro
+                if process.returncode != 0:
+                    error = process.stderr.read()
+                    yield f"data: {json.dumps({'error': str(error)})}\n\n"
+                else:
+                    yield f"data: {json.dumps({'completed': True})}\n\n"
 
-        return jsonify({
-            'message': 'Download concluído com sucesso',
-            'output': stdout.strip()
-        })
+            except Exception as e:
+                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            finally:
+                if 'process' in locals():
+                    try:
+                        process.terminate()
+                    except:
+                        pass
+
+        response = Response(generate(), mimetype='text/event-stream')
+        response.headers['Cache-Control'] = 'no-cache'
+        response.headers['X-Accel-Buffering'] = 'no'
+        return response
 
     except Exception as e:
         logger.error(f"Erro no download do YouTube: {str(e)}")

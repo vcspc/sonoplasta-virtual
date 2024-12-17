@@ -124,7 +124,7 @@
             width: 0%;
             height: 100%;
             background: var(--primary-color);
-            transition: width 0.3s ease;
+            transition: width 0.3s ease, background-color 0.3s ease;
         }
 
         .toast {
@@ -224,6 +224,9 @@
             progressFill.style.width = '0%';
             progressText.textContent = 'Iniciando download...';
 
+            let eventSource = null;
+
+            // Primeiro faz a requisição POST
             fetch('/youtube/download', {
                 method: 'POST',
                 headers: {
@@ -234,32 +237,69 @@
                     category: category
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    showToast('Erro: ' + data.error, 5000);
-                    progressText.textContent = 'Erro no download: ' + data.error;
-                    progressFill.style.backgroundColor = '#dc3545';
-                } else {
-                    showToast('Download concluído com sucesso!');
-                    progressFill.style.width = '100%';
-                    progressText.textContent = 'Download concluído!';
-                    form.reset();
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao iniciar download');
                 }
+                
+                // Inicia o EventSource para acompanhar o progresso
+                eventSource = new EventSource(`/youtube/download?url=${encodeURIComponent(url)}&category=${encodeURIComponent(category)}`);
+
+                eventSource.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        
+                        if (data.progress !== undefined) {
+                            const progress = Math.round(data.progress);
+                            progressFill.style.width = `${progress}%`;
+                            progressText.textContent = `Download em progresso: ${progress}%`;
+                        }
+                        
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        
+                        if (data.completed) {
+                            showToast('Download concluído com sucesso!');
+                            progressFill.style.width = '100%';
+                            progressText.textContent = 'Download concluído!';
+                            cleanupAndReset();
+                        }
+                    } catch (error) {
+                        handleError(error);
+                    }
+                };
+
+                eventSource.onerror = function(error) {
+                    handleError(error);
+                };
             })
-            .catch(error => {
+            .catch(handleError);
+
+            function handleError(error) {
                 console.error('Erro:', error);
-                showToast('Erro ao realizar o download. Tente novamente mais tarde.', 5000);
-                progressText.textContent = 'Erro na conexão';
+                showToast('Erro: ' + (error.message || 'Erro desconhecido'), 5000);
+                progressText.textContent = 'Erro no download';
                 progressFill.style.backgroundColor = '#dc3545';
-            })
-            .finally(() => {
+                cleanupAndReset();
+            }
+
+            function cleanupAndReset() {
+                if (eventSource) {
+                    eventSource.close();
+                    eventSource = null;
+                }
                 button.disabled = false;
+                form.reset();
+                
                 setTimeout(() => {
                     progressContainer.style.display = 'none';
                     progressFill.style.backgroundColor = 'var(--primary-color)';
                 }, 3000);
-            });
+            }
+
+            // Limpa recursos quando a página é fechada
+            window.addEventListener('beforeunload', cleanupAndReset);
         }
     </script>
 </body>
