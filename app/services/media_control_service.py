@@ -23,7 +23,16 @@ class MediaControlService:
                 except Exception as e:
                     logger.error(f"Erro ao terminar processo anterior: {e}")
             
-            if file_type == 'video':
+            if file_type == 'image':
+                # Abre imagem com o visualizador padrão
+                if os.name == 'nt':
+                    os.startfile(file_path)
+                else:
+                    opener = 'xdg-open' if os.name == 'posix' else 'open'
+                    self.video_process = subprocess.Popen([opener, file_path])
+                return True, None
+            
+            elif file_type == 'video':
                 # Abre vídeo em tela cheia
                 if os.name == 'nt':
                     self.video_process = subprocess.Popen(['start', '/max', '', file_path], shell=True)
@@ -37,6 +46,7 @@ class MediaControlService:
                         self.video_process = subprocess.Popen([opener, file_path])
                         time.sleep(1.5)
                         pyautogui.hotkey('alt', 'enter')
+                return True, None
             
             elif file_type == 'audio':
                 # Abre áudio com o player padrão
@@ -45,6 +55,7 @@ class MediaControlService:
                 else:
                     opener = 'xdg-open' if os.name == 'posix' else 'open'
                     self.video_process = subprocess.Popen([opener, file_path])
+                return True, None
             
             else:  # presentation
                 # Abre apresentação e coloca em modo apresentação após 3 segundos
@@ -57,8 +68,8 @@ class MediaControlService:
                     self.video_process = subprocess.Popen([opener, file_path])
                     time.sleep(3)
                     pyautogui.press('f5')
+                return True, None
             
-            return True, None
         except Exception as e:
             error_msg = f"Erro ao reproduzir mídia: {str(e)}"
             logger.error(error_msg)

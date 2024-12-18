@@ -321,9 +321,11 @@
                                 const li = document.createElement('li');
                                 const icon = file.type === 'video' ? 'fas fa-film' : 
                                             file.type === 'audio' ? 'fas fa-music' : 
+                                            file.type === 'image' ? 'fas fa-image' :
                                             'fas fa-file-powerpoint';
                                 const type = file.type === 'video' ? 'Vídeo' : 
                                             file.type === 'audio' ? 'Áudio' : 
+                                            file.type === 'image' ? 'Imagem' :
                                             'Apresentação';
                                 
                                 li.innerHTML = `

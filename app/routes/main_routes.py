@@ -69,6 +69,8 @@ def api_search():
                 file_type = 'presentation'
             elif file.suffix.lower() in config.AUDIO_EXTENSIONS:
                 file_type = 'audio'
+            elif file.suffix.lower() in config.IMAGE_EXTENSIONS:
+                file_type = 'image'
                 
             if file_type:
                 files.append({
@@ -91,7 +93,8 @@ def search_get(term):
             config.FILES_DIR,
             config.VIDEO_EXTENSIONS,
             config.PRESENTATION_EXTENSIONS,
-            config.AUDIO_EXTENSIONS
+            config.AUDIO_EXTENSIONS,
+            config.IMAGE_EXTENSIONS
         )
         
         if not file_path:

@@ -57,7 +57,7 @@ def create_self_signed_cert(cert_path, key_path):
         logger.error(f"Erro ao criar certificado SSL: {str(e)}")
         return False
 
-def find_file(search_term, files_dir, video_extensions, presentation_extensions, audio_extensions):
+def find_file(search_term, files_dir, video_extensions, presentation_extensions, audio_extensions, image_extensions):
     """Procura por um arquivo com base no termo de pesquisa"""
     logger.info(f"Procurando arquivo com termo: {search_term}")
     files_folder = Path(files_dir)
@@ -79,6 +79,9 @@ def find_file(search_term, files_dir, video_extensions, presentation_extensions,
             elif file.suffix.lower() in audio_extensions:
                 logger.info(f"Áudio encontrado: {file}")
                 return str(file.absolute()), 'audio'
+            elif file.suffix.lower() in image_extensions:
+                logger.info(f"Imagem encontrada: {file}")
+                return str(file.absolute()), 'image'
     
     logger.warning(f"Nenhum arquivo encontrado com o termo: {search_term}")
     return None, None
