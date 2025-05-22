@@ -1,0 +1,28 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "Um aplicativo web profissional para controle de reprodução de vídeos e apresentações, ideal para sonoplastia, eventos ao vivo, igrejas, teatros e apresentações em geral.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vcspc/sonoplasta-virtual.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vcspc/sonoplasta-virtual/issues"
+  },
+  "homepage": "https://github.com/vcspc/sonoplasta-virtual#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "multer": "^2.0.0",
+    "open": "^10.1.2",
+    "robotjs": "^0.6.0",
+    "youtube-dl-exec": "^3.0.21"
+  }
+}
