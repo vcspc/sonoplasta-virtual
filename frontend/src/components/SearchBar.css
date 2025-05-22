@@ -1,0 +1,29 @@
+.search-bar-container {
+  display: flex;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 600px; /* Or your preferred max width */
+}
+
+.search-input {
+  flex-grow: 1;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 4px 0 0 4px; /* Rounded left corners */
+}
+
+.search-button {
+  padding: 10px 15px;
+  font-size: 1em;
+  border: 1px solid #007bff;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 0 4px 4px 0; /* Rounded right corners */
+  transition: background-color 0.2s ease-in-out;
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}

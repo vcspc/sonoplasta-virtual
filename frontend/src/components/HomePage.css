@@ -1,0 +1,48 @@
+.home-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.home-page-header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.home-page-header h1 {
+  font-size: 2em;
+  color: #333;
+}
+
+.home-page-main {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.user-message {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 600px; /* Consistent with SearchBar */
+  text-align: center;
+}
+
+/* Example message styles - can be expanded */
+.user-message {
+  background-color: #e9ecef;
+  color: #495057;
+  border: 1px solid #ced4da;
+}
+
+/* If you want specific styles for error messages vs info messages,
+   you might need to add a class to the <p> based on message type.
+.user-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+}
+*/

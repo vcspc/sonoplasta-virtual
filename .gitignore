@@ -74,3 +74,6 @@ htmlcov/
 .coverage.*
 coverage.xml
 *.cover 
+
+# Node.js
+node_modules/

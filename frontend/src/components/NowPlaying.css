@@ -1,0 +1,36 @@
+.now-playing-container {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  width: 100%;
+  max-width: 800px; /* Or your preferred max width */
+  text-align: center;
+}
+
+.now-playing-container.placeholder p {
+  color: #777;
+  font-style: italic;
+}
+
+.now-playing-container h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.3em;
+  color: #333;
+}
+
+.now-playing-info {
+  font-size: 1.1em;
+}
+
+.now-playing-name {
+  font-weight: bold;
+}
+
+.now-playing-type {
+  margin-left: 8px;
+  font-size: 0.9em;
+  color: #555;
+}
